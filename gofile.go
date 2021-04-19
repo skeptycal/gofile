@@ -22,3 +22,15 @@ func PWD() string {
 	}
 	return dir
 }
+
+func IsDir(name string) bool {
+	fi, err := os.Stat(name)
+	if err != nil {
+		return false
+	}
+	return fi.IsDir()
+}
+
+func Copy(src, dest string) (int64, error) {
+	return copy(src, dest)
+}

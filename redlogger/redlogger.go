@@ -8,50 +8,60 @@ import (
 	"io"
 
 	"github.com/sirupsen/logrus"
-	ansi "github.com/skeptycal/ansi"
+	"github.com/skeptycal/ansi"
+	"github.com/skeptycal/cli"
 )
 
 type Logger = logrus.Logger
 
+var LogLevel Level = defaultLogLevel
+
 var (
-	defaultRedLogColor  ansi.Ansi = ansi.NewColor(ansi.Red, ansi.Black, ansi.Bold)
-	defaultDevLogLevel  Level     = logrus.InfoLevel
-	defaultProdLogLevel Level     = logrus.DebugLevel
-	AllLevels                     = logrus.AllLevels
+	defaultRedLogColor ansi.Ansi = ansi.NewColor(ansi.Red, ansi.Black, ansi.Bold)
+	defaultLogLevel    Level     = logrus.DebugLevel
+	// defaultDevLogLevel  Level     = logrus.InfoLevel
+	// defaultProdLogLevel Level     = logrus.DebugLevel
+	AllLevels []Level = logrus.AllLevels
 )
 
 var Log = &logrus.Logger{
 	Out:       New(nil, defaultRedLogColor),
 	Formatter: new(logrus.TextFormatter),
 	Hooks:     make(logrus.LevelHooks),
-	Level:     logrus.InfoLevel,
+	Level:     defaultLogLevel,
 }
 
-type (
-	// PanicLevel, FatalLevel, ErrorLevel, WarnLevel, InfoLevel, DebugLevel, TraceLevel,
-	Level = logrus.Level
-)
+// Level may be one of PanicLevel, FatalLevel, ErrorLevel, WarnLevel, InfoLevel, DebugLevel, TraceLevel
+type Level = logrus.Level
 
 func init() {
 
-	logLevelFlags := flag.String("log level", "INFO", "set the log level. (INFO, DEBUG, WARN, ERROR, FATAL)")
+	logLevelFlag := flag.String("log level", "INFO", "set the log level. (TRACE, DEBUG, INFO, WARN, ERROR, FATAL, PANIC)")
 	// log.SetFormatter(new(logrus.TextFormatter))
-	Log.SetLevel(defaultLogLevel)
 
-	Log.Info("RedLogger enabled...")
+	LogLevel, err := logrus.ParseLevel(*logLevelFlag)
+	if err != nil {
+		LogLevel = defaultLogLevel
+	}
+
+	Log.SetLevel(LogLevel)
+
+	Log.Info("Logger enabled...")
 }
 
+// New returns a new instance of RedLogger. The zero value contains
+// color as the default wrap color and DevMode as false.
 func New(w io.Writer, color ansi.Ansi) *RedLogger {
 
 	if color == nil {
 		color = defaultRedLogColor
 	}
 
-	r := ansi.NewStderr(w)
+	r := cli.NewStderr(w)
 	r.SetColor(color)
 	r.DevMode(false)
 
-	return &RedLogger{color, bufio.NewWriter(w)}
+	return &RedLogger{color, bufio.NewWriter(r)}
 }
 
 // RedLogger implements buffering for an io.Writer object that
@@ -68,28 +78,24 @@ type RedLogger struct {
 }
 
 // Write wraps p with Ansi color codes and writes the result to the buffer.
-func (l *RedLogger) Write(p []byte) (n int, err error) {
-	nn, err := l.Writer.WriteString("--> redlogger Write()") // test
-	nn, err = l.Writer.WriteString(l.color.String())         // test
-	if err != nil {
-		return 0, err
+func (l *RedLogger) Write(p []byte) (int, error) {
+	// nn, err := l.Writer.WriteString("--> redlogger Write()") // test
+	_, wraperr := l.Writer.WriteString(l.color.String()) // test
+	if wraperr != nil {
+		return 0, wraperr
 	}
 
-	n += nn
-
-	nn, err = l.Writer.Write(p)
+	n, err := l.Writer.Write(p)
 	if err != nil {
 		return n, err
 	}
 
-	n += nn
-
-	nn, err = l.Writer.WriteString(ansi.Reset)
-	if err != nil {
-		return n, err
+	_, wraperr = l.Writer.WriteString(ansi.Reset)
+	if wraperr != nil {
+		return n, wraperr
 	}
 
-	return n + nn, nil
+	return n, nil
 }
 
 // WriteString wraps p with Ansi color codes and writes the result to the buffer.
