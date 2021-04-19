@@ -8,5 +8,5 @@ require (
 	github.com/skeptycal/cli v0.1.0
 	github.com/skeptycal/util v0.3.5 // indirect
 	github.com/skeptycal/zsh v0.3.0
-	golang.org/x/sys v0.0.0-20210414055047-fe65e336abe0 // indirect
+	golang.org/x/sys v0.0.0-20210419170143-37df388d1f33 // indirect
 )
