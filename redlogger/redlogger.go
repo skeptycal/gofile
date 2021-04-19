@@ -4,35 +4,41 @@ package redlogger
 
 import (
 	"bufio"
+	"flag"
 	"io"
-	"os"
 
 	"github.com/sirupsen/logrus"
 	ansi "github.com/skeptycal/ansi"
 )
 
+type Logger = logrus.Logger
+
 var (
-	defaultRedLogColor  ansi.Ansi      = ansi.NewColor(ansi.Red, ansi.BlackBackground, ansi.Bold)
-	defaultLogLevel     logrus.Level   = logrus.InfoLevel
-	defaultRedLogOutput ansi.CLI       = ansi.NewStderr(os.Stderr)
-	log                 *logrus.Logger = &logrus.Logger{
-		Out: New(defaultRedLogOutput, defaultRedLogColor),
-	}
+	defaultRedLogColor  ansi.Ansi = ansi.NewColor(ansi.Red, ansi.Black, ansi.Bold)
+	defaultDevLogLevel  Level     = logrus.InfoLevel
+	defaultProdLogLevel Level     = logrus.DebugLevel
+	AllLevels                     = logrus.AllLevels
+)
+
+var Log = &logrus.Logger{
+	Out:       New(nil, defaultRedLogColor),
+	Formatter: new(logrus.TextFormatter),
+	Hooks:     make(logrus.LevelHooks),
+	Level:     logrus.InfoLevel,
+}
+
+type (
+	// PanicLevel, FatalLevel, ErrorLevel, WarnLevel, InfoLevel, DebugLevel, TraceLevel,
+	Level = logrus.Level
 )
 
 func init() {
 
-	l := logrus.New()
-	var log = &logrus.Logger{
-		Out:       New(nil, defaultRedLogColor),
-		Formatter: new(logrus.TextFormatter),
-		Hooks:     make(logrus.LevelHooks),
-		Level:     logrus.InfoLevel,
-	}
+	logLevelFlags := flag.String("log level", "INFO", "set the log level. (INFO, DEBUG, WARN, ERROR, FATAL)")
 	// log.SetFormatter(new(logrus.TextFormatter))
-	log.SetLevel(defaultLogLevel)
+	Log.SetLevel(defaultLogLevel)
 
-	log.Info("RedLogger enabled...")
+	Log.Info("RedLogger enabled...")
 }
 
 func New(w io.Writer, color ansi.Ansi) *RedLogger {
@@ -64,7 +70,7 @@ type RedLogger struct {
 // Write wraps p with Ansi color codes and writes the result to the buffer.
 func (l *RedLogger) Write(p []byte) (n int, err error) {
 	nn, err := l.Writer.WriteString("--> redlogger Write()") // test
-	nn, err := l.Writer.WriteString(l.color)                 // test
+	nn, err = l.Writer.WriteString(l.color.String())         // test
 	if err != nil {
 		return 0, err
 	}

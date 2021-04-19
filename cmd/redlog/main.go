@@ -6,7 +6,7 @@ import (
 	"github.com/skeptycal/gofile/redlogger"
 )
 
-var r = redlogger.New(os.Stderr)
+var r = redlogger.New(os.Stderr, nil)
 
 func main() {
 	defer r.Flush()
