@@ -15,13 +15,13 @@ const (
 
 type PathError = os.PathError
 
-// newPathError records an error and the operation and file path that caused it.
+// NewPathError records an error and the operation and file path that caused it.
 //  type PathError struct {
 //  	Op   string
 //  	Path string
 //  	Err  error
 //  }
-func newPathError(op, path string, err error) *PathError {
+func NewPathError(op, path string, err error) *PathError {
 	return &PathError{
 		Op:   op,
 		Path: path,
