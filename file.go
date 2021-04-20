@@ -44,7 +44,7 @@ func (d *basicfile) Stat() (FileInfo, error) {
 		fi, err := os.Stat(d.Abs())
 		if err != nil {
 			log.Error(err)
-			return nil, e.Err(err)
+			return nil, Err(err)
 		}
 		d.FileInfo = fi
 	}

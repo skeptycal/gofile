@@ -19,13 +19,12 @@ const (
 // Stat returns the os.FileInfo for file if it exists.
 // If the file does not exist, nil is returned.
 // Errors are logged if Err is active.
-func Stat(file string) os.FileInfo {
+func Stat(file string) (os.FileInfo, error) {
 	fi, err := os.Stat(file)
 	if err != nil {
-		logErr(err)
-		return nil
+		return nil, Err.Err(err)
 	}
-	return fi
+	return fi, nil
 }
 
 // StatCheck returns file information (after symlink evaluation)
@@ -77,12 +76,19 @@ func InitialCapacity(capacity int64) int {
 }
 
 // Mode returns the filemode of file.
-func Mode(file string) os.FileMode { return Stat(file).Mode() }
+func Mode(file string) os.FileMode {
+	fi, err := Stat(file)
+	if err != nil {
+		Err.Err(err)
+		return 0
+	}
+	return fi.Mode(), err
+}
 
 // Open opens the named file for reading. If successful, methods on
 // the returned file can be used for reading; the associated file
 // descriptor has mode O_RDONLY.
-// If there is an error, it will be of type *PathError.
+// If there is an error, it will be of type *os.PathError.
 func Open(name string) (File, error) {
 	f, err := os.Open(name)
 	if err != nil {
