@@ -1,11 +1,5 @@
 package errorlogger
 
-import (
-	"fmt"
-
-	"github.com/sirupsen/logrus"
-)
-
 type loggerFunc interface {
 	Error(args ...interface{})
 }
@@ -17,13 +11,13 @@ type loggerFunc interface {
 // The function signature must be
 //  func(args ...interface{}).
 func (e *errorLogger) SetLoggerFunc(fn loggerFunc) {
-	switch v := fn.(type) {
-	case loggerFunc:
-		e.SetLoggerFunc(fn)
-	default:
-		log.Info(fmt.Errorf("%v is not a loggerFunc ... using default", v))
-		e.SetLoggerFunc(logrus.New())
-	}
+	// switch v := fn.(type) {
+	// case loggerFunc:
+	// 	e.SetLoggerFunc(fn)
+	// default:
+	// 	log.Info(fmt.Errorf("%v is not a loggerFunc ... using default", v))
+	// 	e.SetLoggerFunc(logrus.New())
+	// }
 
 	e.logFunc = fn
 }

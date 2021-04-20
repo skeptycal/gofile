@@ -7,5 +7,5 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/skeptycal/ansi v0.3.5
 	github.com/skeptycal/cli v0.2.0
-	golang.org/x/sys v0.0.0-20210419170143-37df388d1f33 // indirect
+	golang.org/x/sys v0.0.0-20210420205809-ac73e9fd8988 // indirect
 )
