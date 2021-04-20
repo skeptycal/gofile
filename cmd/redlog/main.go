@@ -10,5 +10,5 @@ var r = redlogger.New(os.Stderr, nil)
 
 func main() {
 	defer r.Flush()
-	r.WriteString("Hello World!")
+	_, _ = r.WriteString("Hello World!")
 }

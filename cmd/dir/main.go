@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/skeptycal/ansi"
 	"github.com/skeptycal/gofile"
 )
 
@@ -22,24 +24,52 @@ import (
 
 func main() {
 
+	green := ansi.NewColor(2, 0, 1)
+	blue := ansi.NewColor(33, 0, 1)
+
 	log.Info("log started...")
 
 	var testpath string
 
-	if len(os.Args) < 2 {
+	if len(os.Args) > 2 {
 		testpath = os.Args[1]
 	} else {
 		testpath = gofile.PWD()
 	}
 
-	d, err := gofile.NewDir(testpath)
+	d, err := gofile.NewDIR(testpath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	d.List()
+	list, err := d.List()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	fmt.Println("Directory Listing Benchmarks:\n ")
+	// cli := cli.New()
+
+	fmt.Printf("directory of %s\n", d.Path())
+	for _, f := range list {
+		if f.IsDir() {
+			fmt.Printf("%s%s\n", blue, f.Name())
+			// fmt.Printf("%s\n", f.Base())
+		}
+	}
+
+	for _, f := range list {
+		if !f.IsDir() {
+			fmt.Printf("%s%v %7d %v %s\n", green, f.Mode(), f.Size(), f.ModTime().Format(time.Stamp), f.Name())
+			// fmt.Printf("%s\n", f.Base())
+		}
+	}
+
 	fmt.Println("")
-	fmt.Println(Dir(testpath))
+
+	// file := list[0].FileInfo()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// fmt.Printf("first file: %v\n", file.Mode())
 }
