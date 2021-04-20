@@ -27,6 +27,8 @@ func main() {
 	green := ansi.NewColor(2, 0, 1)
 	blue := ansi.NewColor(33, 0, 1)
 
+	var color ansi.Ansi = ansi.NewColor(ansi.White, ansi.Black, ansi.Bold)
+
 	log.Info("log started...")
 
 	var testpath string
@@ -47,21 +49,23 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// cli := cli.New()
-
 	fmt.Printf("directory of %s\n", d.Path())
 	for _, f := range list {
-		if f.IsDir() {
-			fmt.Printf("%s%s\n", blue, f.Name())
-			// fmt.Printf("%s\n", f.Base())
+		fi, err := f.Stat()
+		if err != nil {
+			log.Fatal(err)
 		}
-	}
+		if fi.IsDir() {
+			color = blue
+		} else {
+			color = green
+		}
+		// fmt.Printf("%s%s\n", color, fi.Name())
+		// fmt.Printf("%s\n", f.Base())
 
-	for _, f := range list {
-		if !f.IsDir() {
-			fmt.Printf("%s%v %7d %v %s\n", green, f.Mode(), f.Size(), f.ModTime().Format(time.Stamp), f.Name())
-			// fmt.Printf("%s\n", f.Base())
-		}
+		fmt.Printf("%s%v %7d %v %s\n", color, fi.Mode(), fi.Size(), fi.ModTime().Format(time.Stamp), fi.Name())
+		// fmt.Printf("%s\n", f.Base())
+
 	}
 
 	fmt.Println("")
