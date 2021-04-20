@@ -1,5 +1,37 @@
 
 mode: atomic
+github.com/skeptycal/gofile/copy.go:24.58,30.2 1 0
+github.com/skeptycal/gofile/copy.go:32.43,34.16 2 0
+github.com/skeptycal/gofile/copy.go:38.2,38.40 1 0
+github.com/skeptycal/gofile/copy.go:42.2,43.16 2 0
+github.com/skeptycal/gofile/copy.go:46.2,49.16 3 0
+github.com/skeptycal/gofile/copy.go:52.2,55.20 3 0
+github.com/skeptycal/gofile/copy.go:34.16,36.3 1 0
+github.com/skeptycal/gofile/copy.go:38.40,40.3 1 0
+github.com/skeptycal/gofile/copy.go:43.16,45.3 1 0
+github.com/skeptycal/gofile/copy.go:49.16,51.3 1 0
+github.com/skeptycal/gofile/copy.go:58.38,60.16 2 0
+github.com/skeptycal/gofile/copy.go:64.2,64.47 1 0
+github.com/skeptycal/gofile/copy.go:60.16,62.3 1 0
+github.com/skeptycal/gofile/copy.go:67.56,70.16 2 0
+github.com/skeptycal/gofile/copy.go:74.2,74.28 1 0
+github.com/skeptycal/gofile/copy.go:78.2,79.16 2 0
+github.com/skeptycal/gofile/copy.go:82.2,85.16 3 0
+github.com/skeptycal/gofile/copy.go:88.2,91.21 2 0
+github.com/skeptycal/gofile/copy.go:95.2,97.6 2 0
+github.com/skeptycal/gofile/copy.go:110.2,110.12 1 0
+github.com/skeptycal/gofile/copy.go:70.16,72.3 1 0
+github.com/skeptycal/gofile/copy.go:74.28,76.3 1 0
+github.com/skeptycal/gofile/copy.go:79.16,81.3 1 0
+github.com/skeptycal/gofile/copy.go:85.16,87.3 1 0
+github.com/skeptycal/gofile/copy.go:91.21,93.3 1 0
+github.com/skeptycal/gofile/copy.go:97.6,99.34 2 0
+github.com/skeptycal/gofile/copy.go:102.3,102.13 1 0
+github.com/skeptycal/gofile/copy.go:106.3,106.55 1 0
+github.com/skeptycal/gofile/copy.go:99.34,101.4 1 0
+github.com/skeptycal/gofile/copy.go:102.13,103.9 1 0
+github.com/skeptycal/gofile/copy.go:106.55,108.4 1 0
+github.com/skeptycal/gofile/copy.go:113.23,115.2 0 0
 github.com/skeptycal/gofile/fileops.go:22.27,23.16 1 0
 github.com/skeptycal/gofile/fileops.go:26.2,26.12 1 0
 github.com/skeptycal/gofile/fileops.go:23.16,25.3 1 0
@@ -35,35 +67,7 @@ github.com/skeptycal/gofile/gofile.go:26.30,28.16 2 0
 github.com/skeptycal/gofile/gofile.go:31.2,31.19 1 0
 github.com/skeptycal/gofile/gofile.go:28.16,30.3 1 0
 github.com/skeptycal/gofile/gofile.go:34.44,36.2 1 0
-github.com/skeptycal/gofile/copy.go:24.58,30.2 1 0
-github.com/skeptycal/gofile/copy.go:32.43,34.16 2 0
-github.com/skeptycal/gofile/copy.go:38.2,38.40 1 0
-github.com/skeptycal/gofile/copy.go:42.2,43.16 2 0
-github.com/skeptycal/gofile/copy.go:46.2,49.16 3 0
-github.com/skeptycal/gofile/copy.go:52.2,55.20 3 0
-github.com/skeptycal/gofile/copy.go:34.16,36.3 1 0
-github.com/skeptycal/gofile/copy.go:38.40,40.3 1 0
-github.com/skeptycal/gofile/copy.go:43.16,45.3 1 0
-github.com/skeptycal/gofile/copy.go:49.16,51.3 1 0
-github.com/skeptycal/gofile/copy.go:58.38,60.16 2 0
-github.com/skeptycal/gofile/copy.go:64.2,64.47 1 0
-github.com/skeptycal/gofile/copy.go:60.16,62.3 1 0
-github.com/skeptycal/gofile/copy.go:67.56,70.16 2 0
-github.com/skeptycal/gofile/copy.go:74.2,74.28 1 0
-github.com/skeptycal/gofile/copy.go:78.2,79.16 2 0
-github.com/skeptycal/gofile/copy.go:82.2,85.16 3 0
-github.com/skeptycal/gofile/copy.go:88.2,91.21 2 0
-github.com/skeptycal/gofile/copy.go:95.2,97.6 2 0
-github.com/skeptycal/gofile/copy.go:110.2,110.12 1 0
-github.com/skeptycal/gofile/copy.go:70.16,72.3 1 0
-github.com/skeptycal/gofile/copy.go:74.28,76.3 1 0
-github.com/skeptycal/gofile/copy.go:79.16,81.3 1 0
-github.com/skeptycal/gofile/copy.go:85.16,87.3 1 0
-github.com/skeptycal/gofile/copy.go:91.21,93.3 1 0
-github.com/skeptycal/gofile/copy.go:97.6,99.34 2 0
-github.com/skeptycal/gofile/copy.go:102.3,102.13 1 0
-github.com/skeptycal/gofile/copy.go:106.3,106.55 1 0
-github.com/skeptycal/gofile/copy.go:99.34,101.4 1 0
-github.com/skeptycal/gofile/copy.go:102.13,103.9 1 0
-github.com/skeptycal/gofile/copy.go:106.55,108.4 1 0
-github.com/skeptycal/gofile/copy.go:113.23,115.2 0 0
+mode: atomic
+mode: atomic
+mode: atomic
+mode: atomic
