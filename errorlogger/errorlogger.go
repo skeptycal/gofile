@@ -1,3 +1,20 @@
+// Package errorlogger implements error logging to a logrus log
+// (or a standard library log) by providing a convenient way to
+// log errors and to temporarily disable/enable logging.
+//
+// The default ErrorLogger is enabled and ready to go:
+//  Err := errorlogger.New() // enabled by default
+//
+// This step is not required to use the defaults; a global ErrorLogger
+// named Err is provided. If a private ErrorLogger is desired, or if name
+// collisions with Err cause conflicts, you may implement your own.
+//
+// Example:
+//  f, err := os.Open("somefile.txt")
+//  if err != nil {
+// 	 return nil, e.Err(err) // avoids additional logging steps
+//  }
+//  e.Disable() // can be disabled and enabled as desired
 package errorlogger
 
 import log "github.com/sirupsen/logrus"
