@@ -2,7 +2,6 @@ package gofile
 
 import (
 	"fmt"
-	"io/fs"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -13,14 +12,18 @@ import (
 type DIR interface {
 	Len() int
 	Path() string
-	List() ([]fs.FileInfo, error)
+	List() ([]DataFile, error)
+	SetOpts(opts dirOpts)
 }
+
+// type datafile =
 
 type dirList struct {
 	providedName string
 	pathname     string
 	count        int
-	list         []fs.FileInfo
+	opts         dirOpts
+	list         []DataFile // fs.FileInfo
 }
 
 func (l *dirList) Len() int {
@@ -28,6 +31,15 @@ func (l *dirList) Len() int {
 		l.count = len(l.list)
 	}
 	return l.count
+}
+
+func (l *dirList) Dirs() (list []DataFile) {
+	for _, f := range l.list {
+		if f.IsDir() {
+			list = append(list, f)
+		}
+	}
+	return
 }
 
 func (l *dirList) Path() string {
@@ -46,15 +58,26 @@ func (l *dirList) Path() string {
 	return l.pathname
 }
 
-func (l *dirList) List() ([]fs.FileInfo, error) {
+func (l *dirList) List() ([]DataFile, error) {
 	if l.Len() == 0 {
 		list, err := ioutil.ReadDir(l.Path())
 		if err != nil {
 			return nil, err
 		}
-		l.list = list
+		for _, file := range list {
+			fp := &basicfile{
+				providedName: file.Name(),
+				size:         file.Size(),
+				FileInfo:     file,
+			}
+			l.list = append(l.list, fp)
+		}
 	}
 	return l.list, nil
+}
+
+func (l *dirList) SetOpts(opts dirOpts) {
+	l.opts = opts
 }
 
 func NewDIR(name string) (DIR, error) {

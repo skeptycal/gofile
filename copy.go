@@ -9,11 +9,10 @@ import (
 
 const (
 	normalMode        os.FileMode = 0644
+	dirMode           os.FileMode = 0755
 	defaultBufferSize int         = 1024
 	minBufferSize     int64       = 16
 )
-
-type PathError = os.PathError
 
 func Copy(src, dest string) (int64, error) {
 	return copy(src, dest)
