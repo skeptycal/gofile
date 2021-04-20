@@ -1,5 +1,13 @@
 package main
 
+import (
+	"fmt"
+	"os"
+
+	log "github.com/sirupsen/logrus"
+	"github.com/skeptycal/gofile"
+)
+
 // func Dir(path string) string {
 // 	command := fmt.Sprintf("ls -R %s", path)
 // 	result := zsh.Sh(command)
@@ -12,11 +20,26 @@ package main
 // 	return result
 // }
 
-// func main() {
+func main() {
 
-// 	testpath := "/Users/skeptycal/local_coding"
-// 	fmt.Println("Directory Listing Benchmarks:\n ")
-// 	log.Info("logger started")
-// 	fmt.Println("")
-// 	fmt.Println(Dir(testpath))
-// }
+	log.Info("log started...")
+
+	var testpath string
+
+	if len(os.Args) < 2 {
+		testpath = os.Args[1]
+	} else {
+		testpath = gofile.PWD()
+	}
+
+	d, err := gofile.NewDir(testpath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	d.List()
+
+	fmt.Println("Directory Listing Benchmarks:\n ")
+	fmt.Println("")
+	fmt.Println(Dir(testpath))
+}

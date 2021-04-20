@@ -15,6 +15,10 @@ const (
 
 type PathError = os.PathError
 
+func Copy(src, dest string) (int64, error) {
+	return copy(src, dest)
+}
+
 // NewPathError records an error and the operation and file path that caused it.
 //  type PathError struct {
 //  	Op   string
