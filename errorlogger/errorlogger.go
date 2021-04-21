@@ -49,9 +49,13 @@ const (
 	defaultWrapMessage string       = ""
 )
 
+// Log implements the default logrus error logger
+//
+// Reference: https://github.com/sirupsen/logrus/
+var Log *logrus.Logger = defaultLogger
+
 // Defaults for ErrorLogger
 var (
-	log                  *logrus.Logger   = defaultLogger
 	defaultLogFunc       loggerFunc       = defaultLogger
 	defaultTextFormatter logrus.Formatter = new(logrus.TextFormatter)
 	defaultJSONFormatter logrus.Formatter = new(logrus.JSONFormatter)

@@ -22,7 +22,7 @@ const (
 func Stat(file string) (os.FileInfo, error) {
 	fi, err := os.Stat(file)
 	if err != nil {
-		return nil, Err.Err(err)
+		return nil, Err(err)
 	}
 	return fi, nil
 }
@@ -79,20 +79,20 @@ func InitialCapacity(capacity int64) int {
 func Mode(file string) os.FileMode {
 	fi, err := Stat(file)
 	if err != nil {
-		Err.Err(err)
+		Err(err)
 		return 0
 	}
-	return fi.Mode(), err
+	return fi.Mode()
 }
 
 // Open opens the named file for reading. If successful, methods on
 // the returned file can be used for reading; the associated file
 // descriptor has mode O_RDONLY.
 // If there is an error, it will be of type *os.PathError.
-func Open(name string) (File, error) {
+func Open(name string) (BasicFile, error) {
 	f, err := os.Open(name)
 	if err != nil {
-		return nil, &PathError{Op: "gofile.Open", Path: name, Err: err}
+		return nil, Err(&PathError{Op: "gofile.Open", Path: name, Err: err})
 	}
 
 	return f, nil

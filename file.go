@@ -4,19 +4,20 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
-
-	log "github.com/sirupsen/logrus"
 )
 
-// A File provides access to a single file.
-// The File interface is the minimum implementation required of the file.
+// A BasicFile provides access to a single file.
+// The BasicFile interface is the minimum implementation required of the file.
 // A file may implement additional interfaces, such as
 // ReadDirFile, ReaderAt, or Seeker, to provide additional or optimized functionality.
 //
 // Reference: standard library fs.go
-type File interface {
+type BasicFile interface {
+	io.ReadWriteCloser
+	FileInfo
 	Stat() (FileInfo, error)
 	Read([]byte) (int, error)
 	Close() error
@@ -37,6 +38,39 @@ type basicfile struct {
 	size         int64         // Size of the file
 	FileInfo                   // os.FileInfo interface
 	data         *bytes.Buffer // buffered io.ReadWriter
+	f            *os.File
+	t            *os.File
+}
+
+// Close resets the in memory buffer that is used to cache the file contents.
+// The actual file was closed after reading the data into memory.
+//
+// Reset resets the buffer to be empty, but it retains the underlying
+// storage for use by future writes. This will cause problems for long
+// running programs that access many files. Use Purge() to release the buffer.
+func (d *basicfile) Close() error {
+	// TODO - this will cause problems for long running programs ...
+	d.data.Reset()
+	if d.f != nil {
+		d.f.Close()
+	}
+	if d.t != nil {
+		d.t.Close()
+		err := os.Remove(d.t.Name())
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (d *basicfile) Purge() error {
+	d.data.Reset()
+	d.data = bytes.NewBuffer(make([]byte, 0, 0))
+	if d.data.Cap() != 0 {
+		return bytes.ErrTooLarge
+	}
+	return nil
 }
 
 func (d *basicfile) Stat() (FileInfo, error) {
@@ -52,7 +86,7 @@ func (d *basicfile) Stat() (FileInfo, error) {
 }
 
 func (d *basicfile) String() string {
-	return fmt.Sprintf("datafile: %s", d.Abs())
+	return fmt.Sprintf("datafile: %s", d.Name())
 }
 
 func (d *basicfile) Data() ([]byte, error) {
@@ -91,11 +125,24 @@ func (d *basicfile) SetData(p []byte) (n int, err error) {
 	return d.data.Write(p)
 }
 
+func (d *basicfile) File() (*os.File, error) {
+	if d.f != nil {
+		_, err := d.load()
+		if err != nil {
+			return nil, err
+		}
+	}
+	return d.f, nil
+}
+
+// load reads the file from the disk and returns the number
+// of bytes read and any error encountered.
 func (d *basicfile) load() (n int64, err error) {
 	f, err := os.Open(d.Name())
 	if err != nil {
 		return 0, err
 	}
+	defer f.Close()
 
 	n, err = d.data.ReadFrom(f)
 	if err != nil {
@@ -103,27 +150,31 @@ func (d *basicfile) load() (n int64, err error) {
 	}
 
 	if n != d.Size() {
-		return n, fmt.Errorf("could not read all bytes (want: %d, got: %d)", d.Size(), n)
+		return n, fmt.Errorf("bad read count: (%d != %d)", d.Size(), n)
 	}
 
 	return n, nil
+
 }
 
+// buffersize calculates the buffer size for the file.
 func (d *basicfile) buffersize() int64 {
 	// TODO - should analyze different buffersize values
 	return d.Size() + minBufferSize
 }
 
+// tmpName creates a temporary file on disk with a trailing ~ suffix
+// added to the name. The file is removed and the name is returned.
 func (d *basicfile) tmpName() string {
 	if d.tmp == "" {
-		d.tmp = filepath.Join("~", d.Name())
-		f, err := os.Create(d.tmp)
-		if err != nil {
-			log.Fatalf("provided filename '%s' could not be created: %v", d.bak, err)
-		}
-		f.Close()
+		d.tmp = filepath.Join(d.Name(), "~")
+
 	}
 	return d.tmp
+}
+
+func (d *basicfile) tmpFile() (*os.File, error) {
+	return os.CreateTemp("", d.Name())
 }
 
 func (d *basicfile) bakName() string {
@@ -169,7 +220,7 @@ func (d *basicfile) writeBak() error {
 // (It is permissible for any file to implement this interface,
 // but if so ReadDir should return an error for non-directories.)
 type ReadDirFile interface {
-	File
+	BasicFile
 
 	// ReadDir reads the contents of the directory and returns
 	// a slice of up to n DirEntry values in directory order.

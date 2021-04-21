@@ -6,7 +6,7 @@ import (
 )
 
 type DataFile interface {
-	File
+	BasicFile
 	Data() ([]byte, error)
 }
 

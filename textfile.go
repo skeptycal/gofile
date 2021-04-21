@@ -6,7 +6,7 @@ import (
 )
 
 type TextFile interface {
-	File
+	BasicFile
 	Text() string
 	Lines() (retval []string, err error)
 }

@@ -5,8 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-
-	log "github.com/sirupsen/logrus"
 )
 
 type DIR interface {

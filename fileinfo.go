@@ -3,8 +3,6 @@ package gofile
 import (
 	"os"
 	"time"
-
-	log "github.com/sirupsen/logrus"
 )
 
 // SameFile reports whether fi1 and fi2 describe the same file.

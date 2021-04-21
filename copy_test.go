@@ -6,8 +6,6 @@ import (
 	"os"
 	"testing"
 	"time"
-
-	log "github.com/sirupsen/logrus"
 )
 
 const fakesize = 2 << 16

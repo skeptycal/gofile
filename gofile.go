@@ -5,12 +5,13 @@ import (
 	"errors"
 	"os"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/skeptycal/gofile/errorlogger"
 )
 
 var (
 	ErrBadCount   = errors.New("datafile: bad read count")
 	ErrNotRegular = errors.New("datafile: not regular file")
+	log           = errorlogger.Log
 )
 
 // PWD returns a rooted path name corresponding to the
