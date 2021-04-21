@@ -28,7 +28,7 @@ The second line is a fmt.Println acknowledgement.
 The third line is a log.info message from the logger.
 
 `
-
+	cli.SetColor(color)
 	cli.Printf(message, color)
 
 	err := errors.New("fake error")
