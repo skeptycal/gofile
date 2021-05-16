@@ -1,0 +1,35 @@
+package gofile // import "github.com/skeptycal/gofile"
+
+Package gofile provides support for file operations.
+
+var EL = errorlogger.EL ...
+var ErrBadCount = errors.New("datafile: bad read count") ...
+var SameFile = os.SameFile
+func Copy(src, dest string) (int64, error)
+func Create(name string) (io.ReadWriteCloser, error)
+func CreateSafe(name string) (io.ReadWriteCloser, error)
+func InitialCapacity(capacity int64) int
+func IsDir(name string) bool
+func IsRegular(name string) bool
+func Mode(file string) os.FileMode
+func PWD() string
+func Stat(file string) (os.FileInfo, error)
+func StatCheck(filename string) (os.FileInfo, error)
+type BasicFile interface{ ... }
+    func Open(name string) (BasicFile, error)
+type DIR interface{ ... }
+    func NewDIR(name string) (DIR, error)
+type DataFile interface{ ... }
+    func NewDataFile(filename string) (DataFile, error)
+type DirEntry interface{ ... }
+type ErrorLogger interface{ ... }
+type FileInfo interface{ ... }
+type FileMode = os.FileMode
+type PathError = os.PathError
+    func NewPathError(op, path string, err error) *PathError
+type ReadDirFile interface{ ... }
+type SortType int
+    const Alpha SortType = iota + 1 ...
+type TextFile interface{ ... }
+type TimeZone int
+    const EST TimeZone = -(5 + iota) ...
