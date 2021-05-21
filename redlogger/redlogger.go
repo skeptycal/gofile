@@ -18,6 +18,7 @@ var LogLevel Level = defaultLogLevel
 
 var (
 	defaultRedLogColor ansi.Ansi = ansi.NewColor(ansi.Red, ansi.Black, ansi.Bold)
+	defaultDevMode     bool      = false
 	defaultLogLevel    Level     = logrus.DebugLevel
 	// defaultDevLogLevel  Level     = logrus.InfoLevel
 	// defaultProdLogLevel Level     = logrus.DebugLevel
@@ -25,7 +26,7 @@ var (
 )
 
 var Log = &logrus.Logger{
-	Out:       New(nil, defaultRedLogColor),
+	Out:       New(nil, defaultRedLogColor, defaultDevMode),
 	Formatter: new(logrus.TextFormatter),
 	Hooks:     make(logrus.LevelHooks),
 	Level:     defaultLogLevel,
@@ -51,7 +52,7 @@ func init() {
 
 // New returns a new instance of RedLogger. The zero value contains
 // color as the default wrap color and DevMode as false.
-func New(w io.Writer, color ansi.Ansi) *RedLogger {
+func New(w io.Writer, color ansi.Ansi, devMode bool) *RedLogger {
 
 	if color == nil {
 		color = defaultRedLogColor
@@ -59,7 +60,7 @@ func New(w io.Writer, color ansi.Ansi) *RedLogger {
 
 	r := cli.NewStderr(w)
 	r.SetColor(color)
-	r.DevMode(false)
+	r.DevMode(devMode)
 
 	return &RedLogger{color, bufio.NewWriter(r)}
 }
@@ -77,15 +78,23 @@ type RedLogger struct {
 	*bufio.Writer
 }
 
-// Write wraps p with Ansi color codes and writes the result to the buffer.
-func (l *RedLogger) Write(p []byte) (int, error) {
-	// nn, err := l.Writer.WriteString("--> redlogger Write()") // test
-	_, wraperr := l.Writer.WriteString(l.color.String()) // test
+// Write wraps p with Ansi color codes and writes the contents
+// of p into the buffer. It returns the number of bytes written
+// and any error encountered. If n < len(p), it also returns an
+// error explaining why the write is short.
+//
+// The writing of ANSI wrap codes is checked for validity, but
+// these wrrites are not counted in the return value for n.
+// This allows 'transparent' ANSI wrapping where the caller is
+// unaware of the underlying actions and only receives error
+// messages based on the original data.
+func (l *RedLogger) Write(p []byte) (n int, err error) {
+	_, wraperr := l.Writer.WriteString(l.color.String())
 	if wraperr != nil {
 		return 0, wraperr
 	}
 
-	n, err := l.Writer.Write(p)
+	n, err = l.Writer.Write(p)
 	if err != nil {
 		return n, err
 	}
@@ -95,10 +104,43 @@ func (l *RedLogger) Write(p []byte) (int, error) {
 		return n, wraperr
 	}
 
+	if n < len(p) {
+		return n, io.ErrShortWrite
+	}
+
 	return n, nil
 }
 
-// WriteString wraps p with Ansi color codes and writes the result to the buffer.
+// WriteString wraps s with Ansi color codes and writes the contents
+// of s into the buffer. It returns the number of bytes written
+// and any error encountered. If n < len(s), it also returns an
+// error explaining why the write is short.
+//
+// The writing of ANSI wrap codes is checked for validity, but
+// these wrrites are not counted in the return value for n.
+// This allows 'transparent' ANSI wrapping where the caller is
+// unaware of the underlying actions and only receives error
+// messages based on the original data.
 func (l *RedLogger) WriteString(s string) (n int, err error) {
-	return l.Write([]byte(s))
+	// todo check if l.Writer implements io.StringWriter?
+	// return l.Write([]byte(s))
+	_, wraperr := l.Writer.WriteString(l.color.String())
+	if wraperr != nil {
+		return 0, wraperr
+	}
+
+	n, err = l.Writer.WriteString(s)
+	if err != nil {
+		return n, err
+	}
+	_, wraperr = l.Writer.WriteString(ansi.Reset)
+	if wraperr != nil {
+		return n, wraperr
+	}
+
+	if n < len(s) {
+		return n, io.ErrShortWrite
+	}
+
+	return n, nil
 }

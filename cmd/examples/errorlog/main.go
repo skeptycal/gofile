@@ -6,11 +6,11 @@ import (
 
 	"github.com/skeptycal/ansi"
 	"github.com/skeptycal/cli"
-	"github.com/skeptycal/gofile/errorlogger"
+	"github.com/skeptycal/errorlogger"
 )
 
 var (
-	EL  errorlogger.ErrorLogger = errorlogger.EL
+	EL  errorlogger.ErrorLogger = errorlogger.Log
 	Err func(err error) error   = EL.Err
 	// sb strings.Builder         = strings.Builder{}
 )
