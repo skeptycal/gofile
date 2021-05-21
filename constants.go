@@ -1,6 +1,15 @@
 package gofile
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
+
+const (
+	PathSep = os.PathSeparator
+	ListSep = os.PathListSeparator
+	NewLine = '\n'
+)
 
 type TimeZone int
 

@@ -1,17 +1,17 @@
 package gofile
 
-import "github.com/skeptycal/gofile/errorlogger"
+import "github.com/skeptycal/errorlogger"
 
-// Package errorlogger implements error logging to a logrus log
+// errorlogger implements error logging to a logrus log
 // by default. It is completely compatible with the standard library
 // 'log' logger API. It provides an efficient and convenient way to
 // log errors with minimal overhead and to temporarily disable or
 // enable logging.
 //
-// A global EL and Err with default behaviors are supplied that
+// A global Log and Err with default behaviors are supplied that
 // may be aliased if you wish:
 //
-//  EL = errorlogger.EL // implements the ErrorLogger interface
+//  Log = errorlogger.Log // implements the ErrorLogger interface
 //  Err = errorlogger.Err // trigger function
 //
 // ErrorLogger is:
@@ -27,32 +27,9 @@ import "github.com/skeptycal/gofile/errorlogger"
 // 	 SetErrorType(errType error)
 // }
 var (
-	EL  = errorlogger.EL
+	// Log is the default global ErrorLogger. It implements the ErrorLogger interface as well as the logrus.Logger interface, which is compatible with the standard library "log" package.
+	Log = errorlogger.Log
+
+	// Err is the logging function for the global ErrorLogger.
 	Err = errorlogger.Err
 )
-
-type ErrorLogger interface {
-
-	// Disable disables logging and sets a no-op function for
-	// Err() to prevent slowdowns while logging is disabled.
-	Disable()
-
-	// Enable enables logging and restores the Err() logging functionality.
-	Enable()
-
-	// Err logs an error to the provided logger, if it is enabled,
-	// and returns the error unchanged.
-	Err(err error) error
-
-	// SetLoggerFunc allows setting of the logger function.
-	// The default is log.Error(), which is compatible with
-	// the standard library log package and logrus.
-	SetLoggerFunc(fn func(args ...interface{}))
-
-	Wrap(err error, message string) error
-
-	// TODO - not implemented
-	// SetErrorType allows ErrorLogger to wrap errors in a
-	// specified custom type.
-	// SetErrorType(errType error)
-}
