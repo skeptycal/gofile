@@ -2,16 +2,13 @@
 package gofile
 
 import (
-	"errors"
 	"os"
 
 	"github.com/skeptycal/errorlogger"
 )
 
 var (
-	ErrBadCount   = errors.New("datafile: bad read count")
-	ErrNotRegular = errors.New("datafile: not regular file")
-	log           = errorlogger.Log
+	log = errorlogger.Log
 )
 
 // PWD returns a rooted path name corresponding to the
