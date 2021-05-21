@@ -9,17 +9,21 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-
-	"github.com/skeptycal/errorlogger"
-	"github.com/skeptycal/gofile/copy"
 )
 
 const (
 	NormalMode        os.FileMode = 0644
 	DirMode           os.FileMode = 0755
-	DefaultBufferSize int         = 1024
-	MinBufferSize     int64       = 16
+	MinBufferSize                 = 16
+	SmallBufferSize               = 64
+	Chunk                         = 512
+	DefaultBufferSize             = 1024
+	DefaultBufSize                = 4096
+	MaxInt                        = int(^uint(0) >> 1)
+	MinRead                       = bytes.MinRead
 )
+
+var Copy func(src, dest string) (int64, error) = copybenchmarks.Copy()
 
 // Basicfile provides implements BasicFile by providing access
 // to information and data from a single local file. It is
@@ -362,7 +366,7 @@ func (d *Basicfile) replace(old, new string) error {
 
 func (d *Basicfile) writeBak() error {
 
-	_, err := copy.Copy(d.Name(), d.bakName())
+	_, err := Copy(d.Name(), d.bakName())
 
 	if err != nil {
 		return err

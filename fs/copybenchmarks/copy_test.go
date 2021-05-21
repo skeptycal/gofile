@@ -1,4 +1,4 @@
-package copy
+package copybenchmarks
 
 import (
 	"bufio"
