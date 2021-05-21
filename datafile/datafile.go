@@ -1,18 +1,26 @@
 package gofile
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
+
+	"github.com/skeptycal/gofile/basicfile"
+)
+
+var (
+	ErrBadCount   = errors.New("datafile: bad read count")
+	ErrNotRegular = errors.New("datafile: not regular file")
 )
 
 type DataFile interface {
-	BasicFile
+	basicfile.BasicFile
 	Data() ([]byte, error)
 }
 
 // datafile is a file type that is specialized for binary data
-type datafile struct {
-	basicfile
+type Datafile struct {
+	basicfile.Basicfile
 }
 
 func NewDataFile(filename string) (DataFile, error) {
@@ -27,10 +35,10 @@ func NewDataFile(filename string) (DataFile, error) {
 
 	name, err := filepath.Abs(src.Name())
 	if err != nil {
-		return nil, &PathError{Op: "abs", Path: src.Name(), Err: err}
+		return nil, &os.PathError{Op: "abs", Path: src.Name(), Err: err}
 	}
 
-	df := datafile{}
+	df := Datafile{}
 
 	df.providedName = filename
 	df.name = name
