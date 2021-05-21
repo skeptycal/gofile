@@ -1,8 +1,8 @@
 package gofile
 
 import (
+	"io/fs"
 	"os"
-	"time"
 )
 
 // SameFile reports whether fi1 and fi2 describe the same file.
@@ -21,18 +21,18 @@ var SameFile = os.SameFile
 type FileMode = os.FileMode
 
 // A FileInfo describes a file and is returned by Stat and Lstat.
-// type FileInfo = fs.FileInfo
+type FileInfo = fs.FileInfo
 
 // A FileInfo describes a file and is returned by Stat and Lstat.
 //
-type FileInfo interface {
-	Name() string       // base name of the file
-	Size() int64        // length in bytes for regular files; system-dependent for others
-	Mode() FileMode     // file mode bits
-	ModTime() time.Time // modification time
-	IsDir() bool        // abbreviation for Mode().IsDir()
-	Sys() interface{}   // underlying data source (can return nil)
-}
+// type FileInfo interface {
+// 	Name() string       // base name of the file
+// 	Size() int64        // length in bytes for regular files; system-dependent for others
+// 	Mode() FileMode     // file mode bits
+// 	ModTime() time.Time // modification time
+// 	IsDir() bool        // abbreviation for Mode().IsDir()
+// 	Sys() interface{}   // underlying data source (can return nil)
+// }
 
 // fi returns the FileInfo associated with the file and serves
 // as a lazy cache of os.FileInfo

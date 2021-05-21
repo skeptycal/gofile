@@ -85,15 +85,17 @@ func Mode(file string) os.FileMode {
 	return fi.Mode()
 }
 
-// Open opens the named file for reading. If successful, methods on
-// the returned file can be used for reading; the associated file
-// descriptor has mode O_RDONLY.
+// Open opens the named file for reading as an in memory object.
+// If successful, methods on the returned file can be used for
+// reading; the associated file descriptor has mode O_RDONLY.
 // If there is an error, it will be of type *os.PathError.
 func Open(name string) (BasicFile, error) {
 	f, err := os.Open(name)
 	if err != nil {
 		return nil, Err(&PathError{Op: "gofile.Open", Path: name, Err: err})
 	}
+
+	b, err := NewBasicFile(f)
 
 	return f, nil
 }

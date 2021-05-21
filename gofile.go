@@ -5,7 +5,7 @@ import (
 	"errors"
 	"os"
 
-	"github.com/skeptycal/gofile/errorlogger"
+	"github.com/skeptycal/errorlogger"
 )
 
 var (
