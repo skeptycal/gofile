@@ -1,11 +1,11 @@
-package gofile
+package datafile
 
 import (
 	"errors"
 	"os"
 	"path/filepath"
 
-	"github.com/skeptycal/gofile/basicfile"
+	"github.com/skeptycal/gofile/fs"
 )
 
 var (
@@ -14,13 +14,13 @@ var (
 )
 
 type DataFile interface {
-	basicfile.BasicFile
+	fs.BasicFile
 	Data() ([]byte, error)
 }
 
 // datafile is a file type that is specialized for binary data
 type Datafile struct {
-	basicfile.Basicfile
+	fs.Basicfile
 }
 
 func NewDataFile(filename string) (DataFile, error) {

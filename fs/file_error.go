@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	Err           = errorlogger.Err
+	FSErr         = errorlogger.Err
 	ErrNoAlloc    = errors.New("failed to allocate memory for file")
 	ErrInvalid    = fs.ErrInvalid
 	ErrPermission = fs.ErrPermission

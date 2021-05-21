@@ -9,6 +9,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+
+	"./copybenchmarks"
 )
 
 const (
@@ -23,13 +25,13 @@ const (
 	MinRead                       = bytes.MinRead
 )
 
-var Copy func(src, dest string) (int64, error) = copybenchmarks.Copy()
+var Copy = copybenchmarks.Copy
 
 // Basicfile provides implements BasicFile by providing access
 // to information and data from a single local file. It is
 // designed to cache file information and contents in memory.
 type Basicfile struct {
-	providedName  string // file name as provided by various constructor methods
+	ProvidedName  string // file name as provided by various constructor methods
 	name          string // Base name of the file
 	abs           string // Full absolute path of the file
 	bak           string // Full absolute path of the file with an additional '.bak' suffix
@@ -54,13 +56,13 @@ const defaultWriteCache = true
 // methods on the returned File can be used for I/O; the associated
 // file descriptor has mode O_RDWR. If there is an error, it will
 // be of type *PathError.
-func New(filename string) (BasicFile, error) {
+func New(filename string) (*Basicfile, error) {
 	f, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, NormalMode)
 	if err != nil {
 		return nil, err
 	}
 	b := Basicfile{
-		providedName: filename,
+		ProvidedName: filename,
 		name:         f.Name(),
 		f:            f,
 		writecache:   defaultWriteCache,
@@ -79,7 +81,7 @@ func (d *Basicfile) Close() (err error) {
 	// TODO - this will cause problems for long running programs ...
 	defer d.Reset()
 	if d.f != nil {
-		err = Err(d.f.Close())
+		err = FSErr(d.f.Close())
 	}
 	if d.t != nil {
 		cerr := Err(d.t.Close())
@@ -188,9 +190,9 @@ func (d *Basicfile) IsRegular() bool {
 // If an error occurs, it is logged and the empty string is returned.
 func (d *Basicfile) Abs() string {
 	if d.abs == "" {
-		chk, err := filepath.Abs(d.providedName)
+		chk, err := filepath.Abs(d.ProvidedName)
 		if err != nil {
-			Err(fmt.Errorf("provided filename '%s' not found: %v", d.providedName, err))
+			Err(fmt.Errorf("provided filename '%s' not found: %v", d.ProvidedName, err))
 			return ""
 		}
 		d.abs = chk
