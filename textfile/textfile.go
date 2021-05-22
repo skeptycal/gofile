@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"os"
 
-	"github.com/skeptycal/gofile/basicfile"
+	"github.com/skeptycal/gofile/fs"
 )
 
 const (
@@ -14,7 +14,7 @@ const (
 )
 
 type TextFile interface {
-	basicfile.BasicFile
+	fs.BasicFile
 	Text() string
 	Lines() (retval []string, err error)
 	Sep(c byte)
@@ -22,7 +22,7 @@ type TextFile interface {
 
 // textfile is a file type that is specialized for utf-8 text
 type textfile struct {
-	basicfile.Basicfile
+	fs.Basicfile
 	linesep   byte
 	recordsep byte
 }
