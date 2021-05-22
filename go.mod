@@ -7,6 +7,6 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/skeptycal/ansi v0.3.5
 	github.com/skeptycal/cli v0.2.0
-	github.com/skeptycal/errorlogger v0.2.0
-	golang.org/x/sys v0.0.0-20210514084401-e8d321eab015 // indirect
+	github.com/skeptycal/errorlogger v0.3.1
+	golang.org/x/sys v0.0.0-20210521090106-6ca3eb03dfc2 // indirect
 )

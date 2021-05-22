@@ -6,11 +6,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
 
-	"./copybenchmarks"
 )
 
 const (
@@ -25,7 +25,7 @@ const (
 	MinRead                       = bytes.MinRead
 )
 
-var Copy = copybenchmarks.Copy
+var Copy = c.Copy
 
 // Basicfile provides implements BasicFile by providing access
 // to information and data from a single local file. It is
@@ -161,7 +161,7 @@ func (d *Basicfile) String() string {
 // serialized JSON, or other format.
 func (d *Basicfile) Data() []byte {
 	if d.Len() == 0 {
-		_, err := d.load()
+		_, err := d.()
 		if err != nil {
 			return nil
 		}
@@ -293,15 +293,11 @@ func (d *Basicfile) ReadFile(filename string) (n int64, err error) {
 
 	d.Reset()
 
-	f, err := os.Open(d.Abs())
-	if err != nil {
-		return 0, err
+	if filename == "" {
+		return 0, ErrNotExist
 	}
-	defer f.Close()
 
-	return d.ReadFrom(nil)
-
-	buf, err := os.ReadFile(filename)
+	buf, err := os.ReadFile(d.Abs())
 	if err != nil {
 		return 0, err
 	}
