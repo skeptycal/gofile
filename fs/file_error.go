@@ -11,12 +11,43 @@ import (
 var (
 	FSErr         = errorlogger.Err
 	ErrNoAlloc    = errors.New("failed to allocate memory for file")
+	ErrClosed     = fs.ErrClosed
 	ErrInvalid    = fs.ErrInvalid
 	ErrPermission = fs.ErrPermission
-	ErrExist      = fs.ErrExist
-	ErrNotExist   = fs.ErrNotExist
-	ErrClosed     = fs.ErrClosed
+	ErrExist      = NewGoFileError("gofile", "", fs.ErrExist)
+	ErrNotExist   = NewGoFileError("gofile", "", fs.ErrNotExist)
 )
+
+func gferr(path, op string, eerr error) error {
+	if eerr == nil {
+		return nil
+	}
+
+	if err, ok := eerr.(*os.PathError); ok {
+
+	}
+
+	path = "(gofile error) " + path
+
+	if op == "" {
+		op = err.Op
+	}
+
+	ope := os.PathError{path, op, eerr}
+
+	if path == "" {
+		path = err.Path
+	}
+	return &GoFileError{path, op, ope}
+}
+
+func opErr(op string, err error) error {
+	if err == nil {
+		return nil
+	}
+
+	return gferr("", op, err)
+}
 
 type GoFileError struct {
 	Op   string
@@ -40,7 +71,7 @@ func (e *GoFileError) Timeout() bool {
 // an os.PathError
 func NewGoFileError(op, path string, err error) *GoFileError {
 	fse := &PathError{op, path, err}
-	op = "(gofile.fs error) " + op
+	op = "(gofile error) " + op
 	return &GoFileError{op, path, fse}
 }
 
