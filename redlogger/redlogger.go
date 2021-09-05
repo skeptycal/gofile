@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/skeptycal/ansi"
 	"github.com/skeptycal/cli"
+	"github.com/skeptycal/errorlogger"
 )
 
 type Logger = logrus.Logger
@@ -19,15 +20,19 @@ var LogLevel Level = defaultLogLevel
 var (
 	defaultRedLogColor ansi.Ansi = ansi.NewColor(ansi.Red, ansi.Black, ansi.Bold)
 	defaultDevMode     bool      = false
-	defaultLogLevel    Level     = logrus.DebugLevel
+	defaultLogLevel    Level     = logrus.InfoLevel
+	def                          = errorlogger.NewTextFormatter()
 	// defaultDevLogLevel  Level     = logrus.InfoLevel
 	// defaultProdLogLevel Level     = logrus.DebugLevel
 	AllLevels []Level = logrus.AllLevels
+
+	llog         = errorlogger.New()
+	RedFormatter = new(logrus.TextFormatter)
 )
 
-var Log = &logrus.Logger{
+var logrusLogger = &logrus.Logger{
 	Out:       New(nil, defaultRedLogColor, defaultDevMode),
-	Formatter: new(logrus.TextFormatter),
+	Formatter: RedFormatter,
 	Hooks:     make(logrus.LevelHooks),
 	Level:     defaultLogLevel,
 }
@@ -36,7 +41,6 @@ var Log = &logrus.Logger{
 type Level = logrus.Level
 
 func init() {
-
 	logLevelFlag := flag.String("log level", "INFO", "set the log level. (TRACE, DEBUG, INFO, WARN, ERROR, FATAL, PANIC)")
 	// log.SetFormatter(new(logrus.TextFormatter))
 
@@ -45,9 +49,11 @@ func init() {
 		LogLevel = defaultLogLevel
 	}
 
-	Log.SetLevel(LogLevel)
+	RedFormatter.DisableColors = true // disable colors so only the redlogger wrap colors show
 
-	Log.Info("Logger enabled...")
+	logrusLogger.SetLevel(LogLevel)
+
+	logrusLogger.Info("Logger enabled...")
 }
 
 // New returns a new instance of RedLogger. The zero value contains
