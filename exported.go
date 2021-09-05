@@ -1,6 +1,9 @@
 package gofile
 
-import "github.com/skeptycal/errorlogger"
+import (
+	el "github.com/skeptycal/errorlogger"
+	dl "github.com/skeptycal/gofile/dirlist"
+)
 
 // errorlogger implements error logging to a logrus log
 // by default. It is completely compatible with the standard library
@@ -27,9 +30,13 @@ import "github.com/skeptycal/errorlogger"
 // 	 SetErrorType(errType error)
 // }
 var (
-	// Log is the default global ErrorLogger. It implements the ErrorLogger interface as well as the logrus.Logger interface, which is compatible with the standard library "log" package.
-	Log = errorlogger.Log
+	// Log is the default global ErrorLogger. It implements the ErrorLogger interface as well as the logrus.Logger interface, which is compatible with the standard library "log" package gofile
+	Log = el.Log
 
 	// Err is the logging function for the global ErrorLogger.
-	Err = errorlogger.Err
+	Err = el.Err
+
+	NewDIR = dl.NewDIR
 )
+
+type ()

@@ -1,4 +1,4 @@
-package datafile
+package gofile
 
 import (
 	"errors"
@@ -40,7 +40,7 @@ func NewDataFile(filename string) (DataFile, error) {
 
 	df := Datafile{}
 
-	df.providedName = filename
+	df.ProvidedName = filename
 	df.name = name
 	df.size = src.Size()
 	// df.info = src

@@ -9,7 +9,7 @@ import (
 // For example, on Unix this means that the device and inode fields
 // of the two underlying structures are identical; on other systems
 // the decision may be based on the path names.
-// SameFile only applies to results returned by this package's Stat.
+// SameFile only applies to results returned by this package gofile
 // It returns false in other cases.
 var SameFile = os.SameFile
 
@@ -33,20 +33,6 @@ type FileInfo = fs.FileInfo
 // 	IsDir() bool        // abbreviation for Mode().IsDir()
 // 	Sys() interface{}   // underlying data source (can return nil)
 // }
-
-// fi returns the FileInfo associated with the file and serves
-// as a lazy cache of os.FileInfo
-func (d *basicfile) fi() FileInfo {
-	if d.FileInfo == nil {
-		fi, err := os.Stat(d.Abs())
-		if err != nil {
-			log.Error(err)
-			return nil
-		}
-		d.FileInfo = fi
-	}
-	return d.FileInfo
-}
 
 // Name is the base name of the file
 // func (d *basicfile) Name() string {

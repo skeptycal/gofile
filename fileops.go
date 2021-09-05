@@ -6,6 +6,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+
+	gfs "github.com/skeptycal/gofile/fs"
 )
 
 const (
@@ -15,6 +17,8 @@ const (
 	maxInt          = int(^uint(0) >> 1)
 	minRead         = bytes.MinRead
 )
+
+type BasicFile = gfs.BasicFile
 
 // Stat returns the os.FileInfo for file if it exists.
 // If the file does not exist, nil is returned.
@@ -95,7 +99,7 @@ func Open(name string) (BasicFile, error) {
 		return nil, Err(&PathError{Op: "gofile.Open", Path: name, Err: err})
 	}
 
-	b, err := NewBasicFile(f)
+	b, err := fs.NewBasicFile(f)
 
 	return f, nil
 }

@@ -1,4 +1,4 @@
-package fs
+package gofile
 
 import (
 	"errors"
@@ -23,22 +23,24 @@ func gferr(path, op string, eerr error) error {
 		return nil
 	}
 
-	if err, ok := eerr.(*os.PathError); ok {
-
-	}
-
 	path = "(gofile error) " + path
+
+	err, ok := eerr.(*os.PathError)
+	if !ok {
+		return NewGoFileError(path, op, eerr)
+	}
 
 	if op == "" {
 		op = err.Op
 	}
 
-	ope := os.PathError{path, op, eerr}
-
 	if path == "" {
 		path = err.Path
 	}
-	return &GoFileError{path, op, ope}
+
+	pe := &os.PathError{path, op, eerr}
+
+	return &GoFileError{path, op, pe}
 }
 
 func opErr(op string, err error) error {

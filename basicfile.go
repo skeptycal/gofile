@@ -1,4 +1,4 @@
-package fs
+package gofile
 
 import (
 	"bufio"
@@ -370,4 +370,18 @@ func (d *Basicfile) writeBak() error {
 		return err
 	}
 	return nil
+}
+
+// fi returns the FileInfo associated with the file and serves
+// as a lazy cache of os.FileInfo
+func (d *Basicfile) fi() FileInfo {
+	if d.FileInfo == nil {
+		fi, err := os.Stat(d.Abs())
+		if err != nil {
+			log.Error(err)
+			return nil
+		}
+		d.FileInfo = fi
+	}
+	return d.FileInfo
 }
