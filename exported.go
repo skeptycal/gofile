@@ -2,7 +2,6 @@ package gofile
 
 import (
 	el "github.com/skeptycal/errorlogger"
-	dl "github.com/skeptycal/gofile/dirlist"
 )
 
 // errorlogger implements error logging to a logrus log
@@ -35,8 +34,4 @@ var (
 
 	// Err is the logging function for the global ErrorLogger.
 	Err = el.Err
-
-	NewDIR = dl.NewDIR
 )
-
-type ()

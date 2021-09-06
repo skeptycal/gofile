@@ -1,8 +1,21 @@
 package gofile
 
 import (
+	"bytes"
 	"fmt"
 	"os"
+)
+
+const (
+	NormalMode        os.FileMode = 0644
+	DirMode           os.FileMode = 0755
+	MinBufferSize                 = 16
+	SmallBufferSize               = 64
+	Chunk                         = 512
+	DefaultBufferSize             = 1024
+	DefaultBufSize                = 4096
+	MaxInt                        = int(^uint(0) >> 1)
+	MinRead                       = bytes.MinRead
 )
 
 const (

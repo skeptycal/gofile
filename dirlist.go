@@ -63,8 +63,8 @@ func (l *dirList) List() ([]DataFile, error) {
 			return nil, err
 		}
 		for _, file := range list {
-			fp := &basicfile{
-				providedName: file.Name(),
+			fp := &Basicfile{
+				ProvidedName: file.Name(),
 				size:         file.Size(),
 				FileInfo:     file,
 			}

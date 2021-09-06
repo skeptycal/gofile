@@ -6,11 +6,16 @@ import (
 	"os"
 	"testing"
 	"time"
+
+	"github.com/skeptycal/errorlogger"
+	"github.com/skeptycal/gofile"
 )
 
 const fakesize = 2 << 16
 
 var fake *bufio.ReadWriter
+
+var log = errorlogger.Log
 
 func makebuf(size int) []byte {
 	b := make([]byte, 0, size)
@@ -74,21 +79,21 @@ func init() {
 }
 
 func Test_copy(t *testing.T) {
-	type args struct {
-		src string
-		dst string
-	}
+
 	tests := []struct {
 		name    string
-		args    args
+		fn      func(src string, dst string) (written int64, err error)
+		src     string
+		dst     string
 		want    int64
 		wantErr bool
 	}{
 		// TODO: Add test cases.
+		{"Copy", gofile.Copy, "fakeSrc", "fakeDst", 0, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := copy(tt.args.src, tt.args.dst)
+			got, err := tt.fn(tt.src, tt.dst)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("copy() error = %v, wantErr %v", err, tt.wantErr)
 				return

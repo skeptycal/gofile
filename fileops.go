@@ -6,8 +6,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-
-	gfs "github.com/skeptycal/gofile/fs"
 )
 
 const (
@@ -17,8 +15,6 @@ const (
 	maxInt          = int(^uint(0) >> 1)
 	minRead         = bytes.MinRead
 )
-
-type BasicFile = gfs.BasicFile
 
 // Stat returns the os.FileInfo for file if it exists.
 // If the file does not exist, nil is returned.
@@ -99,9 +95,9 @@ func Open(name string) (BasicFile, error) {
 		return nil, Err(&PathError{Op: "gofile.Open", Path: name, Err: err})
 	}
 
-	b, err := fs.NewBasicFile(f)
+	b, err := NewBasicFile(f.Name())
 
-	return f, nil
+	return b, nil
 }
 
 // Create creates or truncates the named file and returns an
@@ -121,7 +117,7 @@ func Create(name string) (io.ReadWriteCloser, error) {
 	// is passed, it is created with mode perm (before umask). If successful,
 	// methods on the returned File can be used for I/O. If there is an error,
 	// it will be of type *PathError.
-	f, err := os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_TRUNC, normalMode)
+	f, err := os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_TRUNC, NormalMode)
 	if err != nil {
 		return nil, &PathError{Op: "gofile.Create", Path: name, Err: err}
 	}
@@ -139,7 +135,7 @@ func Create(name string) (io.ReadWriteCloser, error) {
 //
 // If there is an error, it will be of type *PathError.
 func CreateSafe(name string) (io.ReadWriteCloser, error) {
-	f, err := os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_APPEND, normalMode)
+	f, err := os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_APPEND, NormalMode)
 	if err != nil {
 		return nil, &PathError{Op: "gofile.CreateSafe", Path: name, Err: err}
 	}

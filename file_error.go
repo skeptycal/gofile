@@ -18,6 +18,20 @@ var (
 	ErrNotExist   = NewGoFileError("gofile", "", fs.ErrNotExist)
 )
 
+// NewPathError records an error and the operation and file path that caused it.
+//  type PathError struct {
+//  	Op   string
+//  	Path string
+//  	Err  error
+//  }
+func NewPathError(op, path string, err error) *PathError {
+	return &PathError{
+		Op:   op,
+		Path: path,
+		Err:  err,
+	}
+}
+
 func gferr(path, op string, eerr error) error {
 	if eerr == nil {
 		return nil

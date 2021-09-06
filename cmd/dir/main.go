@@ -39,7 +39,7 @@ func main() {
 		testpath = gofile.PWD()
 	}
 
-	d, err := gofile.dirlist.NewDIR(testpath)
+	d, err := gofile.NewDIR(testpath)
 	if err != nil {
 		log.Fatal(err)
 	}

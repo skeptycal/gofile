@@ -6,26 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/fs"
-	"log"
 	"os"
 	"path/filepath"
-
 )
-
-const (
-	NormalMode        os.FileMode = 0644
-	DirMode           os.FileMode = 0755
-	MinBufferSize                 = 16
-	SmallBufferSize               = 64
-	Chunk                         = 512
-	DefaultBufferSize             = 1024
-	DefaultBufSize                = 4096
-	MaxInt                        = int(^uint(0) >> 1)
-	MinRead                       = bytes.MinRead
-)
-
-var Copy = c.Copy
 
 // Basicfile provides implements BasicFile by providing access
 // to information and data from a single local file. It is
@@ -56,7 +39,7 @@ const defaultWriteCache = true
 // methods on the returned File can be used for I/O; the associated
 // file descriptor has mode O_RDWR. If there is an error, it will
 // be of type *PathError.
-func New(filename string) (*Basicfile, error) {
+func NewBasicFile(filename string) (*Basicfile, error) {
 	f, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, NormalMode)
 	if err != nil {
 		return nil, err
@@ -159,17 +142,14 @@ func (d *Basicfile) String() string {
 // For typical files, this is []byte, but it may be
 // implemented as a CSV string, Shapefile object,
 // serialized JSON, or other format.
-func (d *Basicfile) Data() []byte {
+func (d *Basicfile) Data() ([]byte, error) {
 	if d.Len() == 0 {
-		_, err := d.()
-		if err != nil {
-			return nil
-		}
+		return nil, errors.New("no data in buffer")
 	}
 	buf := make([]byte, 0, d.buffersize())
 	buf = append(buf, d.Bytes()...)
 
-	return buf
+	return buf, nil
 }
 
 // IsRegular reports whether the file is a regular file.
@@ -242,16 +222,18 @@ func (d *Basicfile) Rename(dst string) error {
 // SetData truncates the buffer and reads p into it.
 func (d *Basicfile) SetData(p []byte) (n int, err error) {
 	d.Reset()
-	if d.Len() < len(p) {
-		d.Grow(len(p))
-	}
+
+	// provided by d.Write() ... but may be customized here ...
+	// if d.Len() < len(p) {
+	// 	d.Grow(len(p) + MinBufferSize)
+	// }
 	return d.Write(p)
 }
 
 // File returns a file pointer to the underlying file.
-func (d *Basicfile) File() (*os.File, error) {
+func (d *Basicfile) File() (f *os.File, err error) {
 	if d.f != nil {
-		_, err := d.load()
+		d.f, err = os.OpenFile(d.Name(), os.O_RDWR, NormalMode)
 		if err != nil {
 			return nil, err
 		}
@@ -275,7 +257,7 @@ func (d *Basicfile) ReadFrom(r io.Reader) (n int64, err error) {
 	return d.Buffer.ReadFrom(r)
 }
 
-// ReadFile reads the named file using os.ReadFile and writes
+// ReadFile reads the file using os.ReadFile and writes
 // the data into the buffer.
 //
 // The buffer is *reset* before calling os.ReadFile. All data in
@@ -289,31 +271,16 @@ func (d *Basicfile) ReadFrom(r io.Reader) (n int64, err error) {
 // The buffer contents are not guaranteed to be written to the
 // underlying file until FSync() is called. If WriteCache is
 // false, FSync() is called immediately.
-func (d *Basicfile) ReadFile(filename string) (n int64, err error) {
+func (d *Basicfile) ReadFile() (n int, err error) {
 
 	d.Reset()
-
-	if filename == "" {
-		return 0, ErrNotExist
-	}
 
 	buf, err := os.ReadFile(d.Abs())
 	if err != nil {
 		return 0, err
 	}
 
-	d.SetData(buf)
-
-	n, err = d.Buffer.ReadFrom(f)
-	if err != nil {
-		return n, err
-	}
-
-	if n != d.Size() {
-		return n, fmt.Errorf("bad read count: (want %d - got %d)", d.Size(), n)
-	}
-
-	return n, nil
+	return d.SetData(buf)
 }
 
 // buffersize calculates the buffer size for the file.

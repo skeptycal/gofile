@@ -1,16 +1,25 @@
 // Package fs defines basic interfaces to a file system.
 // A file system can be provided by the host operating system
 // but also by other packages.
-package fs
+package gofile
 
 import (
 	"io"
 	"io/fs"
+	"os"
 	"syscall"
 	"time"
 )
 
 //******************* Reference: standard library fs.go
+
+// SameFile reports whether fi1 and fi2 describe the same file.
+// For example, on Unix this means that the device and inode fields
+// of the two underlying structures are identical; on other systems
+// the decision may be based on the path names.
+// SameFile only applies to results returned by this package gofile
+// It returns false in other cases.
+var SameFile = os.SameFile
 
 type (
 

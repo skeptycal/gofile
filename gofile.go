@@ -22,7 +22,7 @@ func PWD() string {
 	// func Getwd() (dir string, err error) {
 	dir, err := os.Getwd()
 	if err != nil {
-		log.Error(NewPathError("current directory could not be determined", "os.Getwd()", err))
+		log.Error(NewGoFileError("current directory could not be determined", "os.Getwd()", err))
 		return ""
 	}
 	return dir
