@@ -34,7 +34,17 @@ const (
 	PST
 )
 
+var tzNames = map[TimeZone]string{
+	1: "EST",
+	2: "CST",
+	3: "MST",
+	4: "PST",
+}
+
 func (tz TimeZone) String() string {
+	if s, ok := tzNames[tz]; ok {
+		return s
+	}
 	return fmt.Sprintf("GMT%+dh", tz)
 }
 

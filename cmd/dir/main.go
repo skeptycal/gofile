@@ -27,7 +27,7 @@ func main() {
 	green := ansi.NewColor(2, 0, 1)
 	blue := ansi.NewColor(33, 0, 1)
 
-	var color ansi.Ansi = ansi.NewColor(ansi.White, ansi.Black, ansi.Bold)
+	var color = ansi.NewColor(ansi.White, ansi.Black, ansi.Bold)
 
 	log.Info("log started...")
 
@@ -48,6 +48,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	fmt.Print(color)
 
 	fmt.Printf("directory of %s\n", d.Path())
 	for _, f := range list {

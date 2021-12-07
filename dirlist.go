@@ -3,6 +3,7 @@ package gofile
 import (
 	"fmt"
 	"io"
+	"io/fs"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -10,24 +11,38 @@ import (
 
 type (
 	BF = interface {
-		Close() (err error)
-		Purge() error
-		Stat() (FileInfo, error)
-		String() string
+		io.ReaderFrom
+		io.WriterTo
+		io.ReadWriteCloser
+
 		Data() ([]byte, error)
+		SetData(p []byte) (n int, err error)
+		Purge() error
+
+		File() (f *os.File, err error)
+		Stat() (FileInfo, error)
+
 		IsRegular() bool
 		IsDir() bool
 		Abs() string
-		Move(dst string) error
-		Rename(dst string) error
-		SetData(p []byte) (n int, err error)
-		File() (f *os.File, err error)
-		ReadFrom(r io.Reader) (n int64, err error)
-		ReadFile() (n int, err error)
+		String() string
+
+		// Move(dst string) error
+		// Rename(dst string) error
+		// ReadFile() (n int, err error)
+		// ReadAll(r Reader) ([]byte, error)
+
 	}
 
+	// Basicfile struct {
+	// 	ProvidedName string // file.Name()
+	// 	size         string // file.Size(),
+	// 	FileInfo     os.FileInfo
+	// }
+
 	DataFile = BF
-	DIR      interface {
+
+	DIR interface {
 		Len() int
 		Path() string
 		List() ([]DataFile, error)
@@ -42,7 +57,7 @@ type dirList struct {
 	pathname     string
 	count        int
 	opts         dirOpts
-	list         []DataFile // fs.FileInfo
+	list         []fs.FileInfo // []DataFile // fs.FileInfo
 }
 
 func (l *dirList) Len() int {
@@ -52,7 +67,7 @@ func (l *dirList) Len() int {
 	return l.count
 }
 
-func (l *dirList) Dirs() (list []DataFile) {
+func (l *dirList) Dirs() (list []FileInfo) {
 	for _, f := range l.list {
 		if f.IsDir() {
 			list = append(list, f)
@@ -77,20 +92,20 @@ func (l *dirList) Path() string {
 	return l.pathname
 }
 
-func (l *dirList) List() ([]DataFile, error) {
+func (l *dirList) List() (fi []FileInfo, err error) {
 	if l.Len() == 0 {
-		list, err := ioutil.ReadDir(l.Path())
+		l.list, err = ioutil.ReadDir(l.Path())
 		if err != nil {
 			return nil, err
 		}
-		for _, file := range list {
-			fp := &Basicfile{
-				ProvidedName: file.Name(),
-				size:         file.Size(),
-				FileInfo:     file,
-			}
-			l.list = append(l.list, fp)
-		}
+		// for _, file := range list {
+		// 	fp := &basicFile{
+		// 		// ProvidedName: file.Name(),
+		// 		// size:         file.Size(),
+		// 		FileMode: file.Mode(),
+		// 	}
+		// 	l.list = append(l.list, fp)
+		// }
 	}
 	return l.list, nil
 }

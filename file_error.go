@@ -54,7 +54,7 @@ func gferr(path, op string, eerr error) error {
 
 	pe := &os.PathError{path, op, eerr}
 
-	return &GoFileError{path, op, pe}
+	return NewGoFileError(path, op, pe)
 }
 
 func opErr(op string, err error) error {

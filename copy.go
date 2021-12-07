@@ -13,7 +13,7 @@ func Copy(src, dest string) (int64, error) {
 func copy(src, dst string) (written int64, err error) {
 	sourceFileStat, err := os.Stat(src)
 	if err != nil {
-		return 0, err
+		return 0, Err(err)
 	}
 
 	if !sourceFileStat.Mode().IsRegular() {

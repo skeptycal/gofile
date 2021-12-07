@@ -90,7 +90,7 @@ func Mode(file string) os.FileMode {
 func Open(name string) (BasicFile, error) {
 	f, err := os.Open(name)
 	if err != nil {
-		return nil, Err(&PathError{Op: "gofile.Open", Path: name, Err: err})
+		return nil, NewGoFileError("gofile.Open", name, err)
 	}
 
 	b, err := NewBasicFile(f.Name())

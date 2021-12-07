@@ -23,40 +23,6 @@ var SameFile = os.SameFile
 
 type (
 
-	// A BasicFile provides access to a single file as an in
-	// memory buffer.
-	//
-	// The BasicFile interface is the minimum implementation
-	// required of the file and may be extended to specific file
-	// types. (e.g. CSV, JSON, Esri Shapefile, config files, etc.)
-	//
-	// It may also be implemented as an abstract "file" interface
-	// that provides access to a single file that is too large to
-	// fit in memory at once.
-	//
-	// An implementation for large files should include a way to
-	// cache one section at a time, perhaps using a maxAlloc
-	// value or a mutex of file sections.
-	//
-	// Caching write requests will likely be the bottleneck and
-	// collecting multiple write requests and then writing the results
-	// of the most recent or most active areas of the file may be
-	// effective. However, performance profiling and some research
-	// into whether a database is more efficient is warranted.
-	//
-	// It could also be implemented as a way to access a database,
-	// API, buffer, or other storage.
-	//
-	// A file may implement additional interfaces, such as
-	// ReadDirFile, ReaderAt, or Seeker, to provide additional
-	// or optimized functionality.
-	//
-	// Reference: standard library fs.go
-	BasicFile interface {
-		File
-		FileInfo
-	}
-
 	// type File interface {
 	// FileInfo // use cached FileInfo from Stat() instead
 	// Abs() string // this is useful to have ...
