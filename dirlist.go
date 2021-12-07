@@ -2,17 +2,38 @@ package gofile
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 )
 
-type DIR interface {
-	Len() int
-	Path() string
-	List() ([]DataFile, error)
-	SetOpts(opts dirOpts)
-}
+type (
+	BF = interface {
+		Close() (err error)
+		Purge() error
+		Stat() (FileInfo, error)
+		String() string
+		Data() ([]byte, error)
+		IsRegular() bool
+		IsDir() bool
+		Abs() string
+		Move(dst string) error
+		Rename(dst string) error
+		SetData(p []byte) (n int, err error)
+		File() (f *os.File, err error)
+		ReadFrom(r io.Reader) (n int64, err error)
+		ReadFile() (n int, err error)
+	}
+
+	DataFile = BF
+	DIR      interface {
+		Len() int
+		Path() string
+		List() ([]DataFile, error)
+		SetOpts(opts dirOpts)
+	}
+)
 
 // type datafile =
 

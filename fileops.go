@@ -36,12 +36,12 @@ func StatCheck(filename string) (os.FileInfo, error) {
 	// checking for existance of the file.
 	filename, err := filepath.EvalSymlinks(filename)
 	if err != nil {
-		return nil, err
+		return nil, Err(err)
 	}
 
 	fi, err := os.Stat(filename)
 	if err != nil {
-		return nil, err
+		return nil, Err(err)
 	}
 
 	//Check 'others' permission
@@ -62,9 +62,7 @@ func StatCheck(filename string) (os.FileInfo, error) {
 }
 
 // chunkMultiple returns a multiple of chunk size closest to but greater than size.
-func chunkMultiple(size int64) int64 {
-	return (size/chunk + 1) * chunk
-}
+func chunkMultiple(size int64) int64 { return (size/chunk + 1) * chunk }
 
 // InitialCapacity returns the multiple of 'chunk' one more than needed to
 // accomodate the given capacity.
