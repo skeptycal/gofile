@@ -31,17 +31,34 @@ type (
 
 	GoFile interface {
 		Name() string
+
+		Chdir() (string, error)
+		Chmod(mode FileMode) error
+		Chown(uid int, gid int) error
+		Close() error
+
+		Fd() uintptr
+
 		Read(b []byte) (n int, err error)
 		ReadAt(b []byte, off int64) (n int, err error)
+		ReadDir(dir string) (n int, err error)
 		ReadFrom(r io.Reader) (n int64, err error)
-		Write(b []byte) (n int, err error)
-		WriteAt(b []byte, off int64) (n int, err error)
+		Readdir(dir string) (n int, err error)
+		Readdirnames(dir string) (n int, err error)
+
 		Seek(offset int64, whence int) (ret int64, err error)
-		WriteString(s string) (n int, err error)
-		Chmod(mode FileMode) error
 		SetDeadline(t time.Time) error
 		SetReadDeadline(t time.Time) error
 		SetWriteDeadline(t time.Time) error
+
+		Stat(os.FileInfo, error)
+		Sync() error
+		Truncate(path string, length int64) error
+
+		Write(b []byte) (n int, err error)
+		WriteAt(b []byte, off int64) (n int, err error)
+		WriteString(s string) (n int, err error)
+
 		SyscallConn() (syscall.RawConn, error)
 	}
 
@@ -139,17 +156,35 @@ type (
 
 	// A FileInfo describes a file and is returned by Stat.
 	//
-	//	type FileInfo interface {
-	//		Name() string       // base name of the file
-	//		Size() int64        // length in bytes for regular files; system-dependent for others
-	//		Mode() FileMode     // file mode bits
-	//		ModTime() time.Time // modification time
-	//		IsDir() bool        // abbreviation for Mode().IsDir()
-	//		Sys() interface{}   // underlying data source (can return nil)
-	//	}
+	// Reference: standard library fs.go (FileInfo = fs.FileInfo)
+	FileInfo interface {
+		Name() string       // base name of the file
+		Size() int64        // length in bytes for regular files; system-dependent for others
+		Mode() FileMode     // file mode bits
+		ModTime() time.Time // modification time
+		IsDir() bool        // abbreviation for Mode().IsDir()
+		Sys() interface{}   // underlying data source (can return nil)
+	}
+
+	// FileModer implements functionality exhibited by
+	// fs.FileMode
+	//
+	// A FileMode represents a file's mode and permission bits.
+	// The bits have the same definition on all systems, so that
+	// information about files can be moved from one system
+	// to another portably. Not all bits apply to all systems.
+	// The only required bit is ModeDir for directories.
+	//
+	//  type FileMode uint32
 	//
 	// Reference: standard library fs.go
-	FileInfo = fs.FileInfo
+	FileModer interface {
+		String() string
+		IsDir() bool
+		IsRegular() bool
+		Perm() FileMode
+		Type() FileMode
+	}
 
 	// A FileMode represents a file's mode and permission bits.
 	// The bits have the same definition on all systems, so that
@@ -161,14 +196,4 @@ type (
 	//
 	// Reference: standard library fs.go
 	FileMode = fs.FileMode
-
-	// FileModer implements fs.FileMode functionality
-	// ... yes, I hate the name, too
-	FileModer interface {
-		String() string
-		IsDir() bool
-		IsRegular() bool
-		Perm() FileMode
-		Type() FileMode
-	}
 )

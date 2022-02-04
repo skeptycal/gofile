@@ -7,7 +7,6 @@ provided by the host operating system but also by other packages.
 
 const NormalMode os.FileMode = 0644 ...
 const PathSep = os.PathSeparator ...
-var ErrBadCount = errors.New("datafile: bad read count") ...
 var Log = el.Log ...
 var FSErr = errorlogger.Err ...
 var SameFile = os.SameFile
@@ -16,37 +15,34 @@ func CopyBuffer(src, dst string, buffersize int) (written int64, err error)
 func CopyUtil(src, dst string) (written int64, err error)
 func Create(name string) (io.ReadWriteCloser, error)
 func CreateSafe(name string) (io.ReadWriteCloser, error)
-func InitialCapacity(capacity int64) int
+func InitialCapacity(capacity int) int
 func IsDir(name string) bool
 func IsRegular(name string) bool
 func Mode(file string) os.FileMode
 func PWD() string
 func Stat(file string) (os.FileInfo, error)
 func StatCheck(filename string) (os.FileInfo, error)
+type BF = interface{ ... }
 type BasicFile interface{ ... }
+    func NewBasicFile(filename string) (BasicFile, error)
     func Open(name string) (BasicFile, error)
-type Basicfile struct{ ... }
-    func NewBasicFile(filename string) (*Basicfile, error)
 type DIR interface{ ... }
     func NewDIR(name string) (DIR, error)
-type DataFile interface{ ... }
-    func NewDataFile(filename string) (DataFile, error)
-type Datafile struct{ ... }
+type DataFile = BF
 type DirEntry = fs.DirEntry
 type FS = fs.FS
 type File = fs.File
-type FileInfo = fs.FileInfo
+type FileInfo interface{ ... }
 type FileMode = fs.FileMode
 type FileModer interface{ ... }
 type GoFile interface{ ... }
 type GoFileError struct{ ... }
     func NewGoFileError(op, path string, err error) *GoFileError
-type PathError = os.PathError
+type PathError = fs.PathError
     func NewPathError(op, path string, err error) *PathError
 type PathErrorWrapper interface{ ... }
 type ReadDirFile = fs.ReadDirFile
 type SortType int
     const Alpha SortType = iota + 1 ...
-type TextFile interface{ ... }
 type TimeZone int
     const EST TimeZone = -(5 + iota) ...

@@ -32,7 +32,7 @@ func NewPathError(op, path string, err error) *PathError {
 	}
 }
 
-func gferr(path, op string, eerr error) error {
+func gferr(op, path string, eerr error) error {
 	if eerr == nil {
 		return nil
 	}
@@ -41,7 +41,7 @@ func gferr(path, op string, eerr error) error {
 
 	err, ok := eerr.(*os.PathError)
 	if !ok {
-		return NewGoFileError(path, op, eerr)
+		return NewGoFileError(op, path, eerr)
 	}
 
 	if op == "" {
@@ -52,9 +52,9 @@ func gferr(path, op string, eerr error) error {
 		path = err.Path
 	}
 
-	pe := &os.PathError{path, op, eerr}
+	pe := &PathError{Op: op, Path: path, Err: eerr}
 
-	return NewGoFileError(path, op, pe)
+	return NewGoFileError(op, path, pe)
 }
 
 func opErr(op string, err error) error {
@@ -86,7 +86,7 @@ func (e *GoFileError) Timeout() bool {
 // NewGoFileError returns a new GoFileError which is also
 // an os.PathError
 func NewGoFileError(op, path string, err error) *GoFileError {
-	fse := &PathError{op, path, err}
+	fse := &PathError{Op: op, Path: path, Err: err}
 	op = "(gofile error) " + op
 	return &GoFileError{op, path, fse}
 }
@@ -105,15 +105,15 @@ type PathErrorWrapper interface {
 }
 
 // PathError records an error and the operation and file path that caused it.
-//  type PathError struct {
-//  	Op   string
-//  	Path string
-//  	Err  error
-//  }
+// 	type PathError struct {
+// 		Op   string
+// 		Path string
+// 		Err  error
+// 	}
 //
 //  interface {
 // 		Error() string
 // 		Unwrap() error
 // 		Timeout() bool
 //	}
-type PathError = os.PathError
+type PathError = fs.PathError
