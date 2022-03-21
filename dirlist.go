@@ -1,47 +1,12 @@
 package gofile
 
 import (
-	"fmt"
-	"io"
 	"io/fs"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 )
 
 type (
-	BF = interface {
-		io.ReaderFrom
-		io.WriterTo
-		io.ReadWriteCloser
-
-		Data() ([]byte, error)
-		SetData(p []byte) (n int, err error)
-		Purge() error
-
-		File() (f *os.File, err error)
-		Stat() (FileInfo, error)
-
-		IsRegular() bool
-		IsDir() bool
-		Abs() string
-		String() string
-
-		// Move(dst string) error
-		// Rename(dst string) error
-		// ReadFile() (n int, err error)
-		// ReadAll(r Reader) ([]byte, error)
-
-	}
-
-	// Basicfile struct {
-	// 	ProvidedName string // file.Name()
-	// 	size         string // file.Size(),
-	// 	FileInfo     os.FileInfo
-	// }
-
-	DataFile = BF
-
 	DIR interface {
 		Len() int
 		Path() string
@@ -114,23 +79,23 @@ func (l *dirList) SetOpts(opts dirOpts) {
 	l.opts = opts
 }
 
-func NewDIR(name string) (DIR, error) {
+// func NewDIR(name string) (DIR, error) {
 
-	name, err := filepath.Abs(name)
-	if err != nil {
-		return nil, err
-	}
+// 	name, err := filepath.Abs(name)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	fi, err := os.Stat(name)
-	if err != nil {
-		return nil, err
-	}
+// 	fi, err := os.Stat(name)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	if !fi.IsDir() {
-		return nil, fmt.Errorf("%s is not a directory", name)
-	}
+// 	if !fi.IsDir() {
+// 		return nil, fmt.Errorf("%s is not a directory", name)
+// 	}
 
-	return &dirList{
-		providedName: name,
-	}, nil
-}
+// 	return &dirList{
+// 		providedName: name,
+// 	}, nil
+// }

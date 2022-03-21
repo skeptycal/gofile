@@ -17,12 +17,14 @@ const (
 )
 
 // Stat returns the os.FileInfo for file if it exists.
-// If the file does not exist, nil is returned.
+// If the file does not exist, or is not a regular file,
+// nil is returned.
+//
 // Errors are logged if Err is active.
-func Stat(file string) (os.FileInfo, error) {
-	fi, err := os.Stat(file)
+func Stat(filename string) (os.FileInfo, error) {
+	fi, err := os.Stat(filename)
 	if err != nil {
-		return nil, Err(err)
+		return nil, Err(NewGoFileError("gofile.Stat()", filename, err))
 	}
 	return fi, nil
 }
