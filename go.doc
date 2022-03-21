@@ -1,4 +1,4 @@
-package gofile // import "github.com/skeptycal/gofile"
+package gofile // import "github.com/skeptycal/goutil/gofile"
 
 Package gofile provides support for file operations.
 
@@ -7,7 +7,6 @@ provided by the host operating system but also by other packages.
 
 const NormalMode os.FileMode = 0644 ...
 const PathSep = os.PathSeparator ...
-var ErrBadCount = errors.New("datafile: bad read count") ...
 var Log = el.Log ...
 var FSErr = errorlogger.Err ...
 var SameFile = os.SameFile
@@ -21,32 +20,32 @@ func IsDir(name string) bool
 func IsRegular(name string) bool
 func Mode(file string) os.FileMode
 func PWD() string
-func Stat(file string) (os.FileInfo, error)
+func Stat(filename string) (os.FileInfo, error)
 func StatCheck(filename string) (os.FileInfo, error)
-type BasicFile interface{ ... }
+type BasicFile = interface{ ... }
+    func NewFile(providedName string) (BasicFile, error)
     func Open(name string) (BasicFile, error)
-type Basicfile struct{ ... }
-    func NewBasicFile(filename string) (*Basicfile, error)
 type DIR interface{ ... }
-    func NewDIR(name string) (DIR, error)
-type DataFile interface{ ... }
-    func NewDataFile(filename string) (DataFile, error)
-type Datafile struct{ ... }
+type DataFile = BasicFile
 type DirEntry = fs.DirEntry
 type FS = fs.FS
 type File = fs.File
 type FileInfo = fs.FileInfo
 type FileMode = fs.FileMode
 type FileModer interface{ ... }
+type FileOps interface{ ... }
 type GoFile interface{ ... }
-type GoFileError struct{ ... }
-    func NewGoFileError(op, path string, err error) *GoFileError
+type GoFileError = os.PathError
 type PathError = os.PathError
+    func NewGoFileError(op, path string, err error) *PathError
     func NewPathError(op, path string, err error) *PathError
-type PathErrorWrapper interface{ ... }
 type ReadDirFile = fs.ReadDirFile
+type ReadWriteCloser interface{ ... }
+type ReadWriterAt interface{ ... }
+type Seeker interface{ ... }
 type SortType int
     const Alpha SortType = iota + 1 ...
-type TextFile interface{ ... }
+type StringWriter interface{ ... }
 type TimeZone int
     const EST TimeZone = -(5 + iota) ...
+type ToFrom interface{ ... }
