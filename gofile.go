@@ -3,12 +3,6 @@ package gofile
 
 import (
 	"os"
-
-	"github.com/skeptycal/errorlogger"
-)
-
-var (
-	log = errorlogger.Log
 )
 
 // PWD returns a rooted path name corresponding to the
