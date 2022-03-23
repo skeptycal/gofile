@@ -1,4 +1,4 @@
-package gofile // import "github.com/skeptycal/goutil/gofile"
+package gofile // import "github.com/skeptycal/gofile"
 
 Package gofile provides support for file operations.
 
@@ -7,27 +7,33 @@ provided by the host operating system but also by other packages.
 
 const NormalMode os.FileMode = 0644 ...
 const PathSep = os.PathSeparator ...
+var FSErr ...
+var ErrNoAlloc = errors.New("failed to allocate memory for file") ...
 var Log = el.Log ...
-var FSErr = errorlogger.Err ...
+var NewSyscallError = os.NewSyscallError
 var SameFile = os.SameFile
 func Copy(src, dest string) (int64, error)
 func CopyBuffer(src, dst string, buffersize int) (written int64, err error)
 func CopyUtil(src, dst string) (written int64, err error)
 func Create(name string) (io.ReadWriteCloser, error)
 func CreateSafe(name string) (io.ReadWriteCloser, error)
+func Exists(filename string) bool
 func InitialCapacity(capacity int64) int
 func IsDir(name string) bool
 func IsRegular(name string) bool
 func Mode(file string) os.FileMode
+func NotExists(filename string) bool
 func PWD() string
 func Stat(filename string) (os.FileInfo, error)
 func StatCheck(filename string) (os.FileInfo, error)
-type BasicFile = interface{ ... }
+type BasicFile interface{ ... }
     func NewFile(providedName string) (BasicFile, error)
     func Open(name string) (BasicFile, error)
 type DIR interface{ ... }
 type DataFile = BasicFile
 type DirEntry = fs.DirEntry
+type Errer interface{ ... }
+    func NewPathError(op, path string, err error) Errer
 type FS = fs.FS
 type File = fs.File
 type FileInfo = fs.FileInfo
@@ -35,10 +41,9 @@ type FileMode = fs.FileMode
 type FileModer interface{ ... }
 type FileOps interface{ ... }
 type GoFile interface{ ... }
-type GoFileError = os.PathError
+type GoFileError struct{ ... }
+    func NewGoFileError(op, path string, err error) *GoFileError
 type PathError = os.PathError
-    func NewGoFileError(op, path string, err error) *PathError
-    func NewPathError(op, path string, err error) *PathError
 type ReadDirFile = fs.ReadDirFile
 type ReadWriteCloser interface{ ... }
 type ReadWriterAt interface{ ... }
@@ -46,6 +51,7 @@ type Seeker interface{ ... }
 type SortType int
     const Alpha SortType = iota + 1 ...
 type StringWriter interface{ ... }
+type SyscallError = os.SyscallError
 type TimeZone int
     const EST TimeZone = -(5 + iota) ...
 type ToFrom interface{ ... }

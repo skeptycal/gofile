@@ -1,6 +1,7 @@
 package gofile
 
 import (
+	"fmt"
 	"os"
 	"reflect"
 
@@ -35,7 +36,7 @@ func NewGoFileError(op, path string, err error) *GoFileError {
 	}
 
 	if path != "" {
-		err = &PathError{op, path, err}
+		err = &PathError{Op: op, Path: path, Err: err}
 
 	} else {
 		var wderr error
@@ -48,7 +49,7 @@ func NewGoFileError(op, path string, err error) *GoFileError {
 	return &GoFileError{
 		Op:   "gofile: " + op,
 		Path: path,
-		Err:  &PathError{op, path, err},
+		Err:  &PathError{Op: op, Path: path, Err: err},
 	}
 }
 
@@ -105,6 +106,15 @@ func (e *GoFileError) Wrap(message string) *GoFileError {
 	return e
 }
 
+func (e *GoFileError) Wrapf(format string, args ...interface{}) *GoFileError {
+	return e.Wrap(fmt.Sprintf(format, args...))
+}
+
+func (e *GoFileError) WithMessage(msg string) *GoFileError {
+	e.Err = errors.WithMessage(e.Err, msg)
+	return e
+}
+
 // Unwrap returns the result of calling the Unwrap
 // method on err, if err's type contains an Unwrap
 // method.
@@ -130,8 +140,8 @@ func (e *GoFileError) Unwrap() error {
 //
 // As panics if target is not a non-nil pointer to either a type that implements
 // error, or to any interface type.
-func (e *GoFileError) As(target any) {
-
+func (e *GoFileError) As(any) {
+	return
 }
 
 // Timeout reports whether this error represents a timeout.

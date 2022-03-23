@@ -13,10 +13,9 @@ import (
 // If an error occurs, the empty string is returned and
 // the error is logged.
 func PWD() string {
-	// func Getwd() (dir string, err error) {
 	dir, err := os.Getwd()
 	if err != nil {
-		log.Error(NewGoFileError("current directory could not be determined", "os.Getwd()", err))
+		Err(NewGoFileError("current directory could not be determined", "os.Getwd()", err))
 		return ""
 	}
 	return dir
@@ -26,6 +25,7 @@ func PWD() string {
 // That is, it tests for the ModeDir bit being
 // set in m.
 func IsDir(name string) bool {
+	return NewFileWithErr(name).IsDir()
 	fi, err := os.Stat(name)
 	if err != nil {
 		return false

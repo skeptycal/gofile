@@ -1,4 +1,4 @@
-package main
+package dirtest
 
 import (
 	"fmt"
@@ -6,7 +6,6 @@ import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/skeptycal/ansi"
 	"github.com/skeptycal/gofile"
 )
 
@@ -24,10 +23,10 @@ import (
 
 func main() {
 
-	green := ansi.NewColor(2, 0, 1)
-	blue := ansi.NewColor(33, 0, 1)
+	// green := ansi.NewColor(2, 0, 1)
+	// blue := ansi.NewColor(33, 0, 1)
 
-	var color = ansi.NewColor(ansi.White, ansi.Black, ansi.Bold)
+	// var color = ansi.NewColor(ansi.White, ansi.Black, ansi.Bold)
 
 	log.Info("log started...")
 
@@ -39,7 +38,9 @@ func main() {
 		testpath = gofile.PWD()
 	}
 
-	d, err := gofile.NewDIR(testpath)
+	// d, err := gofile.NewDIR(testpath)
+	d, err := gofile.NewFileWithErr(testpath)
+
 	if err != nil {
 		log.Fatal(err)
 	}

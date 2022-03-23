@@ -2,116 +2,44 @@ package gofile
 
 import (
 	"fmt"
-	"io"
 	"io/fs"
-	"net/http"
 	"os"
 	"path/filepath"
 	"time"
 )
 
-type (
-	basicFile struct {
-		providedName string      // original user input
-		fi           os.FileInfo // cached file information
-		modTime      time.Time   // used to validate cache entries
-		*os.File                 // underlying file handle
-	}
-)
-
-type (
-	ReadWriteCloser interface {
-		Read(p []byte) (n int, err error)
-		Write(p []byte) (n int, err error)
-		Close() error
-	}
-
-	StringWriter interface {
-		ReadWriteCloser
-		io.StringWriter
-	}
-
-	Seeker interface {
-		Seek(offset int64, whence int) (int64, error)
-	}
-
-	ToFrom interface {
-		io.ReaderFrom
-		io.WriterTo
-	}
-
-	// ReadWriteAt implements io.ReaderAt and io.WriterAt
-	// for concurrent, non-overlapping reads and writes.
-	ReadWriterAt interface {
-		// ReaderAt is the interface that wraps the basic ReadAt method.
-		//
-		// ReadAt reads len(p) bytes into p starting at offset off in the
-		// underlying input source. It returns the number of bytes
-		// read (0 <= n <= len(p)) and any error encountered.
-		//
-		// When ReadAt returns n < len(p), it returns a non-nil error
-		// explaining why more bytes were not returned. In this respect,
-		// ReadAt is stricter than Read.
-		//
-		// Even if ReadAt returns n < len(p), it may use all of p as scratch
-		// space during the call. If some data is available but not len(p) bytes,
-		// ReadAt blocks until either all the data is available or an error occurs.
-		// In this respect ReadAt is different from Read.
-		//
-		// If the n = len(p) bytes returned by ReadAt are at the end of the
-		// input source, ReadAt may return either err == EOF or err == nil.
-		//
-		// If ReadAt is reading from an input source with a seek offset,
-		// ReadAt should not affect nor be affected by the underlying
-		// seek offset.
-		//
-		// Clients of ReadAt can execute parallel ReadAt calls on the
-		// same input source.
-		//
-		// Implementations must not retain p.
-		ReadAt(p []byte, off int64) (n int, err error)
-
-		// WriterAt is the interface that wraps the basic WriteAt method.
-		//
-		// WriteAt writes len(p) bytes from p to the underlying data stream
-		// at offset off. It returns the number of bytes written from p (0 <= n <= len(p))
-		// and any error encountered that caused the write to stop early.
-		// WriteAt must return a non-nil error if it returns n < len(p).
-		//
-		// If WriteAt is writing to a destination with a seek offset,
-		// WriteAt should not affect nor be affected by the underlying
-		// seek offset.
-		//
-		// Clients of WriteAt can execute parallel WriteAt calls on the same
-		// destination if the ranges do not overlap.
-		//
-		// Implementations must not retain p.
-		WriteAt(p []byte, off int64) (n int, err error)
-	}
-
-	FileOps interface {
-		Chmod(mode os.FileMode) error
-		Move(path string) error
-		Abs() (string, error)
-		Split(path string) (dir, file string)
-		Base(path string) string
-		Dir(path string) string
-		Ext(path string) string
-	}
-
-	GoFile interface {
-		ReadWriteCloser
-		ToFrom
-
-		Name() string
-		Open(name string) (http.File, error)
-		Readdir(count int) ([]os.FileInfo, error)
-		Stat() (os.FileInfo, error)
-	}
-)
-
-func NewFile(providedName string) (BasicFile, error) {
+func NewFileWithErr(providedName string) (BasicFile, error) {
 	return nil, ErrNotImplemented
+}
+
+// NewFile returns a new BasicFile, but no error,
+// as is the custom in the standard library os
+// package. Most often, if a file cannot be opened
+// or created, we do not care why. It is often
+// beyond the scope of the application to correct
+// these types of errors. It simply means  that
+// we cannot proceed.
+//
+// This allows for convenient inline usage with
+// the standard pattern of Go nil checking.
+// If errorlogger is active, any error is still
+// recoreded in the log. This offloads error
+// logging duties to errorlogger, or whichever
+// standard library compatible logger function
+// is assigned to the global logger function:
+//  func Err(err error) error
+//
+// TLDR: Check for nil if you only want to know
+// whether *any* error occurred.
+// If you care about a *specific* error, use
+//  NewFileWithErr() (f *os.File, err error)
+// for a more os.Open()-ish way.
+func NewFile(providedName string) BasicFile {
+	f, err := NewFileWithErr(providedName)
+	if Err(err) != nil {
+		return nil
+	}
+	return f
 }
 
 // A BasicFile provides access to a single file as an in
@@ -163,11 +91,17 @@ func NewFile(providedName string) (BasicFile, error) {
 //  	Sys() interface{}   // underlying data source (can return nil)
 //  }
 type BasicFile interface {
-	Handle() (*os.File, error)
+	// Handle returns the file handle, *os.File.
+	// The minimum interface that is implemented
+	// by a File is:
+	//  io.ReadCloser
+	//  Stat()
+	Handle() *os.File
 
-	// Implements fs.File interface:
-	Stat() (fs.FileInfo, error)
-	io.ReadCloser
+	// Stat returns the FileInfo portion of the
+	// BasicFile interface.
+	Stat() fs.FileInfo
+	// io.ReadCloser
 
 	FileModer
 	FileInfo
@@ -179,21 +113,139 @@ type BasicFile interface {
 
 }
 
-// type BasicFile interface {
-// 	File
-// 	FileInfo
-// }
+type (
+	basicFile struct {
+		providedName string      // original user input
+		fi           os.FileInfo // cached file information
+		modTime      time.Time   // used to validate cache entries
+		*os.File                 // underlying file handle
+		lock         bool
+	}
+)
 
-func (f *basicFile) Handle() (*os.File, error) {
-	if f.File != nil {
-		return f.File, nil
+////////////// Return component interfaces
+
+/*
+Chdir
+Chmod
+Chown
+Close
+Fd
+Name
+Read
+ReadAt
+ReadDir
+ReadFrom
+Readdir
+Readdirnames
+Seek
+SetDeadline
+SetReadDeadline
+SetWriteDeadline
+Stat
+Sync
+SyscallConn
+Truncate
+Write
+WriteAt
+WriteString
+Chdir(). Error
+Close). Error
+Sync(). Error
+*/
+
+// Handle returns the file handle, *os.File.
+// The minimum interface that is implemented
+// by a File is:
+//  io.ReadCloser
+//  Stat()
+func (f *basicFile) Handle() *os.File {
+	return f.file()
+}
+
+func (f *basicFile) file() *os.File {
+	if f.File == nil {
+		ff, err := os.Open(f.providedName)
+		if Err(err) != nil {
+			return nil
+		}
+		f.File = ff
 	}
-	ff, err := os.Open(f.providedName)
+	return f.File
+}
+
+func (f *basicFile) FileInfo() FileInfo {
+	return f.fileInfo()
+}
+
+func (f *basicFile) fileInfo() FileInfo {
+	if f.fi == nil {
+		fi, err := os.Stat(f.Name())
+		if Err(err) != nil {
+			return nil
+		}
+		f.fi = fi
+	}
+	return f.fi
+}
+
+// Flush flushes any in-memory copy of recent changes,
+// closes the underlying file, and resets the file
+// pointer / fileinfo to nil.
+// This includes running os.File.Sync(), which commits
+// the current contents of the file to stable storage.
+//
+// The BasicFile object remains available and the
+// underlying will be reopened and used as needed.
+// During the flushing and closing process, any new
+// concurrent read or write operations will block and
+// be unavailable.
+func (f *basicFile) Flush() error {
+	if f.Locked() {
+		return errFileLocked
+	}
+	f.Lock()
+	defer f.Unlock()
+	err := Err(f.File.Sync())
 	if err != nil {
-		return nil, err
+		// TODO: retry ... could get stuck here ...
+		return f.Flush()
 	}
-	f.File = ff
-	return f.File, nil
+	err = f.File.Close()
+	if err != nil {
+		Err(err)
+	}
+	f.fi = nil
+	f.File = nil
+	f.timeStamp()
+	return nil
+}
+
+func (f *basicFile) Locked() bool {
+	return f.lock
+}
+
+func (f *basicFile) Lock() {
+	f.lock = true
+}
+
+func (f *basicFile) Unlock() {
+	f.lock = false
+}
+
+// timeStamp sets the most recent mod time in
+// the basicFile struct and returns that time.
+// This is separate and unrelated from the
+// underlying file modTime, which is at:
+//  (*basicFile).ModTime() time.Time
+func (f *basicFile) timeStamp() time.Time {
+	f.modTime = time.Now()
+	return f.modTime
+}
+
+// Mode - returns the file mode bits
+func (f *basicFile) Mode() FileMode {
+	return f.FileInfo().Mode()
 }
 
 // Name - returns the base name of the file
@@ -209,27 +261,9 @@ func (f *basicFile) Abs() string {
 	return s
 }
 
-func (f *basicFile) FileInfo() FileInfo {
-	if f.fi == nil {
-		fi, err := os.Stat(f.Name())
-		// log error but do not return
-		if err != nil {
-			_ = Err(err)
-			return nil
-		}
-		f.fi = fi
-	}
-	return f.fi
-}
-
 // Size - returns the length in bytes for regular files; system-dependent for others
 func (f *basicFile) Size() int64 {
 	return f.FileInfo().Size()
-}
-
-// Mode - returns the file mode bits
-func (f *basicFile) Mode() FileMode {
-	return f.FileInfo().Mode()
 }
 
 // ModTime - returns the modification time

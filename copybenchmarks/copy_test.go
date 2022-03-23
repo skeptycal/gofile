@@ -4,11 +4,9 @@ import (
 	"bufio"
 	"math/rand"
 	"os"
-	"testing"
 	"time"
 
 	"github.com/skeptycal/errorlogger"
-	"github.com/skeptycal/gofile"
 )
 
 const fakesize = 2 << 16
@@ -78,29 +76,29 @@ func init() {
 	fake = f
 }
 
-func Test_copy(t *testing.T) {
+// func Test_copy(t *testing.T) {
 
-	tests := []struct {
-		name    string
-		fn      func(src string, dst string) (written int64, err error)
-		src     string
-		dst     string
-		want    int64
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-		{"Copy", gofile.Copy, "fakeSrc", "fakeDst", 0, false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.fn(tt.src, tt.dst)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("copy() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if got != tt.want {
-				t.Errorf("copy() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
+// 	tests := []struct {
+// 		name    string
+// 		fn      func(src string, dst string) (written int64, err error)
+// 		src     string
+// 		dst     string
+// 		want    int64
+// 		wantErr bool
+// 	}{
+// 		// TODO: Add test cases.
+// 		{"Copy", gofile.Copy, "fakeSrc", "fakeDst", 0, false},
+// 	}
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			got, err := tt.fn(tt.src, tt.dst)
+// 			if (err != nil) != tt.wantErr {
+// 				t.Errorf("copy() error = %v, wantErr %v", err, tt.wantErr)
+// 				return
+// 			}
+// 			if got != tt.want {
+// 				t.Errorf("copy() = %v, want %v", got, tt.want)
+// 			}
+// 		})
+// 	}
+// }

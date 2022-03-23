@@ -6,18 +6,14 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-
-	"github.com/skeptycal/errorlogger"
 )
 
-var (
-	log = errorlogger.Log
-
-	// e is an errorlogger.ErrorLogger with default settings
-	e = Err
-
-	FSErr = errorlogger.Err
-)
+// NewSyscallError returns, as an error, a new
+// SyscallError with the given system call name
+// and error details.
+// As a convenience, if err is nil, NewSyscallError
+// returns nil.
+var NewSyscallError = os.NewSyscallError
 
 // Portable analogs of some common errors.
 //
@@ -26,6 +22,7 @@ var (
 var (
 	ErrNoAlloc          = errors.New("failed to allocate memory for file")
 	ErrNotImplemented   = errors.New("not implemented")
+	errFileLocked       = NewGoFileError()
 	ErrFsInvalid        = fs.ErrInvalid
 	ErrPermission       = fs.ErrPermission
 	ErrExist            = fs.ErrExist
@@ -40,6 +37,7 @@ var (
 	ErrShortBuffer      = io.ErrShortBuffer
 	ErrShortWrite       = io.ErrShortWrite
 	ErrUnexpectedEOF    = io.ErrUnexpectedEOF
+	ErrBadPattern       = filepath.ErrBadPattern
 )
 
 type (
@@ -51,6 +49,7 @@ type (
 	// associated with file and system errors.
 	Errer interface {
 		Error() string
+		// Wrap() error
 		Unwrap() error
 		Timeout() bool
 	}
@@ -63,15 +62,6 @@ type (
 	// system call.
 	SyscallError = os.SyscallError
 )
-
-var aaa = filepath.ErrBadPattern
-
-// NewSyscallError returns, as an error, a new
-// SyscallError with the given system call name
-// and error details.
-// As a convenience, if err is nil, NewSyscallError
-// returns nil.
-var NewSyscallError = os.NewSyscallError
 
 // NewPathError returns, as an error, a new
 // PathError with the given operation and file
