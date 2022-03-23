@@ -52,26 +52,36 @@ func NewGoFileError(op, path string, err error) *GoFileError {
 	}
 }
 
+const goFileErrorPrefix = "gofile: "
+
+func prependGoFilePrefix(msg string) string {
+	return goFileErrorPrefix + msg
+}
+
+func checkGoFilePath(path string) string {
+	if path == "" {
+		return PWD()
+	}
+	if Exists(path) {
+		return "invalid path"
+	}
+	return path
+}
+
 func gferr(path, op string, err error) error {
+	var gfe = new(GoFileError)
 
 	v, ok := err.(*os.PathError)
-	if !ok {
-		return NewGoFileError(path, op, v)
+	if ok {
+		op = v.Op
+		path = v.Path
+		err = v
 	}
 
-	err = errors.Wrap(err, "gofile error")
+	gfe = &GoFileError{Op: prependGoFilePrefix(op), Path: path, Err: err}
+	gfe.Wrap("gofile stack trace")
 
-	if op == "" {
-		op = "gofile error"
-	}
-
-	if path == "" {
-		path = err.Path
-	}
-
-	pe := &os.PathError{path, op, eerr}
-
-	return NewGoFileError(path, op, pe)
+	return gfe
 }
 
 func (e *GoFileError) Error() string {
@@ -90,7 +100,7 @@ func (e *GoFileError) Wrap(message string) *GoFileError {
 		return nil
 	}
 
-	e.Err = errors.Wrap(e.Err, "gofile: "+message)
+	e.Err = errors.Wrap(e.Err, goFileErrorPrefix+message)
 
 	return e
 }

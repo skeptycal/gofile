@@ -2,10 +2,12 @@ package gofile
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 const (
@@ -27,6 +29,16 @@ func Stat(filename string) (os.FileInfo, error) {
 		return nil, Err(NewGoFileError("gofile.Stat()", filename, err))
 	}
 	return fi, nil
+}
+
+func Exists(filename string) bool {
+	_, err := os.Stat(filename)
+	return errors.Is(err, ErrNotExist)
+}
+
+func NotExists(filename string) bool {
+	_, err := os.Stat(filename)
+	return errors.Is(err, os.ErrNotExist)
 }
 
 // StatCheck returns file information (after symlink evaluation)
@@ -95,7 +107,7 @@ func Open(name string) (BasicFile, error) {
 		return nil, NewGoFileError("gofile.Open", name, err)
 	}
 
-	b, err := NewBasicFile(f.Name())
+	b := &basicFile{name, nil, time.Now(), f}
 
 	return b, nil
 }

@@ -26,6 +26,15 @@ import (
 // 	}
 // )
 
+type fileUnix interface {
+	Truncate(size int64) error
+	Remove() error
+	Link(newname string) error
+	Symlink(newname string) error
+	Readlink() (string, error)
+	Fd() uintptr
+}
+
 //******************* Reference: standard library fs.go
 
 type (
@@ -48,13 +57,14 @@ type (
 
 	// A FileInfo describes a file and is returned by Stat.
 	//
+	// Implements fs.FileInfo interface:
 	//	type FileInfo interface {
-	//		Name() string       // base name of the file
-	//		Size() int64        // length in bytes for regular files; system-dependent for others
-	//		Mode() FileMode     // file mode bits
-	//		ModTime() time.Time // modification time
-	//		IsDir() bool        // abbreviation for Mode().IsDir()
-	//		Sys() interface{}   // underlying data source (can return nil)
+	// 		Name() string       // base name of the file
+	// 		Size() int64        // length in bytes for regular files; system-dependent for others
+	// 		Mode() FileMode     // file mode bits
+	// 		ModTime() time.Time // modification time
+	// 		IsDir() bool        // abbreviation for Mode().IsDir()
+	// 		Sys() interface{}   // underlying data source (can return nil)
 	//	}
 	//
 	// Reference: standard library fs.go
@@ -71,13 +81,30 @@ type (
 	// Reference: standard library fs.go
 	FileMode = fs.FileMode
 
-	// FileModer implements fs.FileMode functionality
-	// ... yes, I hate the name, too
+	// FileModer implements fs.FileMode methods
+	//
+	// A FileMode represents a file's mode and permission bits.
+	// The bits have the same definition on all systems, so that
+	// information about files can be moved from one system
+	// to another portably. Not all bits apply to all systems.
+	// The only required bit is ModeDir for directories.
 	FileModer interface {
+
+		// human-readable representation of the file
 		String() string
+
+		// IsDir reports whether m describes a directory.
+		// That is, it tests for the ModeDir bit being set in m.
 		IsDir() bool
+
+		// IsRegular reports whether m describes a regular file.
+		// That is, it tests that no mode type bits are set.
 		IsRegular() bool
+
+		// Perm returns the Unix permission bits in m (m & ModePerm).
 		Perm() FileMode
+
+		// Type returns type bits in m (m & ModeType).
 		Type() FileMode
 	}
 

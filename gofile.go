@@ -22,14 +22,20 @@ func PWD() string {
 	return dir
 }
 
+// IsDir reports whether a file is a directory.
+// That is, it tests for the ModeDir bit being
+// set in m.
 func IsDir(name string) bool {
 	fi, err := os.Stat(name)
 	if err != nil {
 		return false
 	}
-	return fi.IsDir()
+	return fi.Mode().IsDir()
 }
 
+// IsRegular reports whether a file describes
+// a regular file. That is, it tests that no
+// mode type bits are set.
 func IsRegular(name string) bool {
 	fi, err := os.Stat(name)
 	if err != nil {
