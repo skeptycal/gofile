@@ -7,9 +7,9 @@ provided by the host operating system but also by other packages.
 
 const NormalMode os.FileMode = 0644 ...
 const PathSep = os.PathSeparator ...
-var FSErr ...
 var ErrNoAlloc = errors.New("failed to allocate memory for file") ...
-var Log = el.Log ...
+var Err = GFlog.Err
+var GFlog = errorlogger.New()
 var NewSyscallError = os.NewSyscallError
 var SameFile = os.SameFile
 func Copy(src, dest string) (int64, error)
@@ -27,7 +27,8 @@ func PWD() string
 func Stat(filename string) (os.FileInfo, error)
 func StatCheck(filename string) (os.FileInfo, error)
 type BasicFile interface{ ... }
-    func NewFile(providedName string) (BasicFile, error)
+    func NewFile(providedName string) BasicFile
+    func NewFileWithErr(providedName string) (BasicFile, error)
     func Open(name string) (BasicFile, error)
 type DIR interface{ ... }
 type DataFile = BasicFile
