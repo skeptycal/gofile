@@ -8,6 +8,8 @@ import (
 	"io/fs"
 	"net/http"
 	"os"
+	"syscall"
+	"time"
 )
 
 type (
@@ -95,9 +97,39 @@ type (
 		ToFrom
 
 		Name() string
+
 		Open(name string) (http.File, error)
 		Readdir(count int) ([]os.FileInfo, error)
 		Stat() (os.FileInfo, error)
+
+		Chdir() (string, error)
+		Chmod(mode FileMode) error
+		Chown(uid int, gid int) error
+		Close() error
+
+		Fd() uintptr
+
+		Read(b []byte) (n int, err error)
+		ReadAt(b []byte, off int64) (n int, err error)
+		ReadDir(dir string) (n int, err error)
+		ReadFrom(r io.Reader) (n int64, err error)
+		Readdir(dir string) (n int, err error)
+		Readdirnames(dir string) (n int, err error)
+
+		Seek(offset int64, whence int) (ret int64, err error)
+		SetDeadline(t time.Time) error
+		SetReadDeadline(t time.Time) error
+		SetWriteDeadline(t time.Time) error
+
+		Stat(os.FileInfo, error)
+		Sync() error
+		Truncate(path string, length int64) error
+
+		Write(b []byte) (n int, err error)
+		WriteAt(b []byte, off int64) (n int, err error)
+		WriteString(s string) (n int, err error)
+
+		SyscallConn() (syscall.RawConn, error)
 	}
 )
 
@@ -276,6 +308,15 @@ type (
 	//
 	// Reference: standard library fs.go
 	FS = fs.FS
+
+	// FileModer interface {
+	// 	String() string
+	// 	IsDir() bool
+	// 	IsRegular() bool
+	// 	Perm() FileMode
+	// 	Type() FileMode
+	// }
+
 )
 
 // SameFile reports whether fi1 and fi2 describe the same file.

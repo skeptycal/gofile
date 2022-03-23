@@ -1,16 +1,18 @@
 package gofile
 
 import (
-	"io/fs"
 	"io/ioutil"
+	"os"
 	"path/filepath"
+
+	"github.com/coredns/plugin/pkg/log"
 )
 
 type (
 	DIR interface {
 		Len() int
 		Path() string
-		List() ([]DataFile, error)
+		List() ([]BasicFile, error)
 		SetOpts(opts dirOpts)
 	}
 )
@@ -22,7 +24,7 @@ type dirList struct {
 	pathname     string
 	count        int
 	opts         dirOpts
-	list         []fs.FileInfo // []DataFile // fs.FileInfo
+	list         []BasicFile // []DataFile // fs.FileInfo
 }
 
 func (l *dirList) Len() int {
@@ -57,20 +59,37 @@ func (l *dirList) Path() string {
 	return l.pathname
 }
 
-func (l *dirList) List() (fi []FileInfo, err error) {
+func fi2bf(fi FileInfo) (BasicFile, error) {
+	f, err := os.Open(fi.Name())
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &basicFile{
+		rw:   f,
+		fi:   fi,
+		mode: fi.Mode(),
+	}, nil
+}
+
+// Returns the list of files in the directory.
+//
+// If an error is encountered, that file will be
+// skipped and processing will continue.
+func (l *dirList) List() (fi []BasicFile, err error) {
 	if l.Len() == 0 {
-		l.list, err = ioutil.ReadDir(l.Path())
+		list, err := ioutil.ReadDir(l.Path())
 		if err != nil {
 			return nil, err
 		}
-		// for _, file := range list {
-		// 	fp := &basicFile{
-		// 		// ProvidedName: file.Name(),
-		// 		// size:         file.Size(),
-		// 		FileMode: file.Mode(),
-		// 	}
-		// 	l.list = append(l.list, fp)
-		// }
+		for _, file := range list {
+			bf, err := fi2bf(file)
+			if err != nil {
+				continue
+			}
+			list = append(list, bf)
+		}
 	}
 	return l.list, nil
 }
@@ -79,8 +98,14 @@ func (l *dirList) SetOpts(opts dirOpts) {
 	l.opts = opts
 }
 
-// func NewDIR(name string) (DIR, error) {
+//  DIR interface {
+// 		Len() int
+// 		Path() string
+// 		List() ([]DataFile, error)
+// 		SetOpts(opts dirOpts)
+// 	}
 
+// func NewDIR(name string) (DIR, error) {
 // 	name, err := filepath.Abs(name)
 // 	if err != nil {
 // 		return nil, err

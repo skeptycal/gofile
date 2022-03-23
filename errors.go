@@ -22,7 +22,7 @@ var NewSyscallError = os.NewSyscallError
 var (
 	ErrNoAlloc          = errors.New("failed to allocate memory for file")
 	ErrNotImplemented   = errors.New("not implemented")
-	errFileLocked       = NewGoFileError()
+	errFileLocked       = NewGoFileError("file locked", "", ErrClosed)
 	ErrFsInvalid        = fs.ErrInvalid
 	ErrPermission       = fs.ErrPermission
 	ErrExist            = fs.ErrExist

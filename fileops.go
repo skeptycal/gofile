@@ -7,21 +7,21 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"time"
 )
 
 const (
-	defaultBufSize  = 4096
 	smallBufferSize = 64
-	chunk           = 512
 	maxInt          = int(^uint(0) >> 1)
 	minRead         = bytes.MinRead
 )
 
 // Stat returns the os.FileInfo for file if it exists.
-// If the file does not exist, or is not a regular file,
-// nil is returned.
 //
+// It is a convenience wrapper for os.Stat that traps
+// and processes errors that may occur using the
+// the ErrorLogger package.
+//
+// If the file does not exist, nil is returned.
 // Errors are logged if Err is active.
 func Stat(filename string) (os.FileInfo, error) {
 	fi, err := os.Stat(filename)
@@ -44,6 +44,19 @@ func NotExists(filename string) bool {
 // StatCheck returns file information (after symlink evaluation)
 // using os.Stat(). If the file does not exist, is not a regular file,
 // or if the user lacks adequate permissions, an error is returned.
+// StatCheck returns file information (after symlink evaluation
+// and path cleaning) using os.Stat().
+//
+// If the file does not exist, is not a regular file,
+// or if the user lacks adequate permissions, an error is
+// returned.
+//
+// It is a convenience wrapper for os.Stat that traps
+// and processes errors that may occur using the
+// the ErrorLogger package.
+//
+// If the file does not exist, nil is returned.
+// Errors are logged if Err is active.
 func StatCheck(filename string) (os.FileInfo, error) {
 
 	// EvalSymlinks also calls Abs and Clean as well as
@@ -75,18 +88,6 @@ func StatCheck(filename string) (os.FileInfo, error) {
 	return fi, err
 }
 
-// chunkMultiple returns a multiple of chunk size closest to but greater than size.
-func chunkMultiple(size int64) int64 { return (size/chunk + 1) * chunk }
-
-// InitialCapacity returns the multiple of 'chunk' one more than needed to
-// accomodate the given capacity.
-func InitialCapacity(capacity int64) int {
-	if capacity < defaultBufSize {
-		return defaultBufSize
-	}
-	return int(chunkMultiple(capacity))
-}
-
 // Mode returns the filemode of file.
 func Mode(file string) os.FileMode {
 	fi, err := Stat(file)
@@ -95,6 +96,11 @@ func Mode(file string) os.FileMode {
 		return 0
 	}
 	return fi.Mode()
+}
+
+func NewBasicFile(filename string) (BasicFile, error) {
+
+	return &basicFile{}, nil
 }
 
 // Open opens the named file for reading as an in memory object.
@@ -107,9 +113,10 @@ func Open(name string) (BasicFile, error) {
 		return nil, NewGoFileError("gofile.Open", name, err)
 	}
 
-	b := &basicFile{name, nil, time.Now(), f}
+	// b := &basicFile{name, nil, time.Now(), f}
 
 	return b, nil
+	return NewBasicFile(f.Name())
 }
 
 // Create creates or truncates the named file and returns an

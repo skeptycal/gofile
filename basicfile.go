@@ -70,6 +70,25 @@ func NewFile(providedName string) BasicFile {
 // ReadDirFile, ReaderAt, or Seeker, to provide additional
 // or optimized functionality.
 //
+//  type FileModer interface {
+//  	String() string
+//  	IsDir() bool
+//  	IsRegular() bool
+//  	Perm() FileMode
+//  	Type() FileMode
+//  }
+//
+// A FileInfo describes a file and is returned by Stat.
+//
+//  type FileInfo interface {
+//      Name() string       // base name of the file
+//      Size() int64        // length in bytes for regular files; system-dependent for others
+//      Mode() FileMode     // file mode bits
+//      ModTime() time.Time // modification time
+//      IsDir() bool        // abbreviation for Mode().IsDir()
+//      Sys() interface{}   // underlying data source (can return nil)
+//  }
+//
 // Reference: standard library fs.go
 // using File, FileInfo, and FileModer interfaces
 //

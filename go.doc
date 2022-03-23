@@ -26,6 +26,7 @@ func NotExists(filename string) bool
 func PWD() string
 func Stat(filename string) (os.FileInfo, error)
 func StatCheck(filename string) (os.FileInfo, error)
+type BF = interface{ ... }
 type BasicFile interface{ ... }
     func NewFile(providedName string) BasicFile
     func NewFileWithErr(providedName string) (BasicFile, error)
@@ -37,7 +38,7 @@ type Errer interface{ ... }
     func NewPathError(op, path string, err error) Errer
 type FS = fs.FS
 type File = fs.File
-type FileInfo = fs.FileInfo
+type FileInfo interface{ ... }
 type FileMode = fs.FileMode
 type FileModer interface{ ... }
 type FileOps interface{ ... }
