@@ -8,8 +8,7 @@ provided by the host operating system but also by other packages.
 const NormalMode os.FileMode = 0644 ...
 const PathSep = os.PathSeparator ...
 var ErrNoAlloc = errors.New("failed to allocate memory for file") ...
-var Err = GFlog.Err
-var GFlog = errorlogger.New()
+var Err = log.Err
 var NewSyscallError = os.NewSyscallError
 var SameFile = os.SameFile
 func Copy(src, dest string) (int64, error)
@@ -18,7 +17,7 @@ func CopyUtil(src, dst string) (written int64, err error)
 func Create(name string) (io.ReadWriteCloser, error)
 func CreateSafe(name string) (io.ReadWriteCloser, error)
 func Exists(filename string) bool
-func InitialCapacity(capacity int64) int
+func InitialCapacity(capacity int) int
 func IsDir(name string) bool
 func IsRegular(name string) bool
 func Mode(file string) os.FileMode
@@ -26,11 +25,12 @@ func NotExists(filename string) bool
 func PWD() string
 func Stat(filename string) (os.FileInfo, error)
 func StatCheck(filename string) (os.FileInfo, error)
-type BF = interface{ ... }
 type BasicFile interface{ ... }
+    func NewBasicFile(filename string) (BasicFile, error)
     func NewFile(providedName string) BasicFile
     func NewFileWithErr(providedName string) (BasicFile, error)
     func Open(name string) (BasicFile, error)
+type Closer interface{ ... }
 type DIR interface{ ... }
 type DataFile = BasicFile
 type DirEntry = fs.DirEntry
@@ -38,17 +38,20 @@ type Errer interface{ ... }
     func NewPathError(op, path string, err error) Errer
 type FS = fs.FS
 type File = fs.File
-type FileInfo interface{ ... }
+type FileInfo = fs.FileInfo
 type FileMode = fs.FileMode
 type FileModer interface{ ... }
 type FileOps interface{ ... }
+type GoDir interface{ ... }
 type GoFile interface{ ... }
 type GoFileError struct{ ... }
     func NewGoFileError(op, path string, err error) *GoFileError
 type PathError = os.PathError
+type ReadCloser interface{ ... }
 type ReadDirFile = fs.ReadDirFile
 type ReadWriteCloser interface{ ... }
 type ReadWriterAt interface{ ... }
+type Reader interface{ ... }
 type Seeker interface{ ... }
 type SortType int
     const Alpha SortType = iota + 1 ...
@@ -57,3 +60,5 @@ type SyscallError = os.SyscallError
 type TimeZone int
     const EST TimeZone = -(5 + iota) ...
 type ToFrom interface{ ... }
+type WriteCloser interface{ ... }
+type Writer interface{ ... }
