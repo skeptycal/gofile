@@ -113,13 +113,13 @@ type BasicFile interface {
 	// Handle returns the file handle, *os.File.
 	// The minimum interface that is implemented
 	// by a File is:
-	//  io.ReadCloser
+	GoFile
 	//  Stat()
 	Handle() *os.File
 
 	// Stat returns the FileInfo portion of the
 	// BasicFile interface.
-	Stat() fs.FileInfo
+	Stat() (fs.FileInfo, error)
 	// io.ReadCloser
 
 	FileModer
@@ -131,18 +131,6 @@ type BasicFile interface {
 	// String() string
 
 }
-
-type (
-	basicFile struct {
-		providedName string      // original user input
-		fi           os.FileInfo // cached file information
-		modTime      time.Time   // used to validate cache entries
-		*os.File                 // underlying file handle
-		lock         bool
-	}
-)
-
-////////////// Return component interfaces
 
 /*
 Chdir
@@ -173,6 +161,18 @@ Close). Error
 Sync(). Error
 */
 
+type (
+	basicFile struct {
+		providedName string      // original user input
+		fi           os.FileInfo // cached file information
+		modTime      time.Time   // used to validate cache entries
+		*os.File                 // underlying file handle
+		lock         bool
+	}
+)
+
+////////////// Return component interfaces
+
 // Handle returns the file handle, *os.File.
 // The minimum interface that is implemented
 // by a File is:
@@ -192,20 +192,20 @@ func (f *basicFile) file() *os.File {
 	}
 	return f.File
 }
-
-func (f *basicFile) FileInfo() FileInfo {
-	return f.fileInfo()
-}
-
-func (f *basicFile) fileInfo() FileInfo {
+func (f *basicFile) Stat() (FileInfo, error) {
 	if f.fi == nil {
 		fi, err := os.Stat(f.Name())
 		if Err(err) != nil {
-			return nil
+			return nil, NewGoFileError("Gofile.Stat()", f.providedName, err)
 		}
 		f.fi = fi
 	}
-	return f.fi
+	return f.fi, nil
+}
+
+func (f *basicFile) FileInfo() FileInfo {
+	fi, _ := f.Stat()
+	return fi
 }
 
 // Flush flushes any in-memory copy of recent changes,

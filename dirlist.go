@@ -4,8 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-
-	"github.com/coredns/plugin/pkg/log"
+	"time"
 )
 
 type (
@@ -14,6 +13,9 @@ type (
 		Path() string
 		List() ([]BasicFile, error)
 		SetOpts(opts dirOpts)
+
+		// Chdir changes the current working directory to the file, which must be a directory. If there is an error, it will be of type *PathError.
+		Chdir() error
 	}
 )
 
@@ -67,9 +69,10 @@ func fi2bf(fi FileInfo) (BasicFile, error) {
 	}
 
 	return &basicFile{
-		rw:   f,
-		fi:   fi,
-		mode: fi.Mode(),
+		File:    f,
+		fi:      fi,
+		modTime: time.Now(),
+		lock:    false,
 	}, nil
 }
 

@@ -8,4 +8,7 @@ require (
 	github.com/skeptycal/errorlogger v0.5.0
 )
 
-require golang.org/x/sys v0.0.0-20220319134239-a9b59b0215f8 // indirect
+require (
+	github.com/stretchr/testify v1.7.1 // indirect
+	golang.org/x/sys v0.0.0-20220319134239-a9b59b0215f8 // indirect
+)

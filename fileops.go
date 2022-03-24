@@ -100,7 +100,7 @@ func Mode(file string) os.FileMode {
 
 func NewBasicFile(filename string) (BasicFile, error) {
 
-	return &basicFile{}, nil
+	return &basicFile{providedName: filename}, nil
 }
 
 // Open opens the named file for reading as an in memory object.
@@ -113,9 +113,6 @@ func Open(name string) (BasicFile, error) {
 		return nil, NewGoFileError("gofile.Open", name, err)
 	}
 
-	// b := &basicFile{name, nil, time.Now(), f}
-
-	return b, nil
 	return NewBasicFile(f.Name())
 }
 

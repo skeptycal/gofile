@@ -30,7 +30,7 @@ import "github.com/skeptycal/goutil/errorlogger"
 //
 // Err is the default errorlogger.ErrorLogger for
 // the gofile package.
-var GFlog = errorlogger.New()
+var log = errorlogger.New()
 
 // Err is the logging function for the
 // global ErrorLogger.
@@ -38,4 +38,4 @@ var GFlog = errorlogger.New()
 // Err logs an error to the provided logger,
 // if it is enabled, and returns the error
 // unchanged.
-var Err = GFlog.Err
+var Err = log.Err

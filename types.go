@@ -4,7 +4,7 @@
 package gofile
 
 import (
-	"io"
+	"fmt"
 	"io/fs"
 	"net/http"
 	"os"
@@ -12,25 +12,70 @@ import (
 	"time"
 )
 
+// Reference types copied from io package
 type (
-	ReadWriteCloser interface {
+	Reader interface {
 		Read(p []byte) (n int, err error)
+	}
+
+	Writer interface {
 		Write(p []byte) (n int, err error)
+	}
+
+	Closer interface {
 		Close() error
 	}
 
-	StringWriter interface {
-		ReadWriteCloser
-		io.StringWriter
+	WriteCloser interface {
+		Writer
+		Closer
 	}
 
+	ReadCloser interface {
+		Reader
+		Closer
+	}
+
+	ReadWriteCloser interface {
+		ReadCloser
+		Writer
+	}
+
+	// StringWriter is the interface that wraps the WriteString method.
+	StringWriter interface {
+		WriteString(s string) (n int, err error)
+	}
+
+	// Seeker is the interface that wraps the basic Seek method.
+	//
+	// Seek sets the offset for the next Read or Write to offset, interpreted according to whence: SeekStart means relative to the start of the file, SeekCurrent means relative to the current offset, and SeekEnd means relative to the end. Seek returns the new offset relative to the start of the file or an error, if any.
+	//
+	// Seeking to an offset before the start of the file is an error. Seeking to any positive offset may be allowed, but if the new offset exceeds the size of the underlying object the behavior of subsequent I/O operations is implementation-dependent.
+	//
+	// Reference: io.Seeker
 	Seeker interface {
 		Seek(offset int64, whence int) (int64, error)
 	}
 
 	ToFrom interface {
-		io.ReaderFrom
-		io.WriterTo
+
+		// ReaderFrom is the interface that wraps the ReadFrom method.
+		//
+		// ReadFrom reads data from r until EOF or error. The return value n is the number of bytes read. Any error except EOF encountered during the read is also returned.
+		//
+		// The Copy function uses ReaderFrom if available.
+		//
+		// Reference: io.ReaderFrom
+		ReadFrom(r Reader) (n int64, err error)
+
+		// WriterTo is the interface that wraps the WriteTo method.
+		//
+		// WriteTo writes data to w until there's no more data to write or when an error occurs. The return value n is the number of bytes written. Any error encountered during the write is also returned.
+		//
+		// The Copy function uses WriterTo if available.
+		//
+		// Reference: io.WriterTo
+		WriteTo(w Writer) (n int64, err error)
 	}
 
 	// ReadWriteAt implements io.ReaderAt and io.WriterAt
@@ -93,43 +138,58 @@ type (
 	}
 
 	GoFile interface {
-		ReadWriteCloser
+		File
+		Writer
+		StringWriter
 		ToFrom
-
-		Name() string
+		ReadWriterAt
+		Seeker
+		fmt.Stringer
 
 		Open(name string) (http.File, error)
-		Readdir(count int) ([]os.FileInfo, error)
-		Stat() (os.FileInfo, error)
+		// Readdir(count int) ([]os.FileInfo, error)
 
-		Chdir() (string, error)
-		Chmod(mode FileMode) error
-		Chown(uid int, gid int) error
-		Close() error
+		// FileInfo methods
+		Name() string       // base name of the file
+		Size() int64        // length in bytes for regular files; system-dependent for others
+		Mode() FileMode     // file mode bits
+		ModTime() time.Time // modification time
+		// IsDir() bool        // abbreviation for Mode().IsDir()
+		Sys() any
 
+		// FileMode methods
+		String() string // human-readable representation of the file
+		IsDir() bool    // abbreviation for Mode().IsDir()
+		IsRegular() bool
+		Perm() FileMode
+		Type() FileMode
+
+		// Unix File Operations
+		Truncate(size int64) error
+		Remove() error
+		Link(newname string) error
+		Symlink(newname string) error
+		Readlink() (string, error)
 		Fd() uintptr
 
-		Read(b []byte) (n int, err error)
-		ReadAt(b []byte, off int64) (n int, err error)
-		ReadDir(dir string) (n int, err error)
-		ReadFrom(r io.Reader) (n int64, err error)
-		Readdir(dir string) (n int, err error)
-		Readdirnames(dir string) (n int, err error)
+		Chmod(mode FileMode) error
+		Chown(uid int, gid int) error
 
-		Seek(offset int64, whence int) (ret int64, err error)
 		SetDeadline(t time.Time) error
 		SetReadDeadline(t time.Time) error
 		SetWriteDeadline(t time.Time) error
 
-		Stat(os.FileInfo, error)
 		Sync() error
-		Truncate(path string, length int64) error
-
-		Write(b []byte) (n int, err error)
-		WriteAt(b []byte, off int64) (n int, err error)
-		WriteString(s string) (n int, err error)
 
 		SyscallConn() (syscall.RawConn, error)
+	}
+
+	GoDir interface {
+		ReadDirFile
+		GoFile
+		Chdir() error
+
+		Readdirnames(dir string) (n int, err error)
 	}
 )
 
@@ -308,15 +368,6 @@ type (
 	//
 	// Reference: standard library fs.go
 	FS = fs.FS
-
-	// FileModer interface {
-	// 	String() string
-	// 	IsDir() bool
-	// 	IsRegular() bool
-	// 	Perm() FileMode
-	// 	Type() FileMode
-	// }
-
 )
 
 // SameFile reports whether fi1 and fi2 describe the same file.
