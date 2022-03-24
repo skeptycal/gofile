@@ -1,4 +1,4 @@
-module github.com/skeptycal/gofile
+module github.com/skeptycal/goutil/gofile
 
 go 1.18
 

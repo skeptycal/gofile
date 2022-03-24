@@ -1,12 +1,12 @@
 // Package fs defines basic interfaces to a file system.
 // A file system can be provided by the host operating system
 // but also by other packages.
+
 package gofile
 
 import (
 	"io"
 	"io/fs"
-	"net/http"
 	"os"
 	"syscall"
 	"time"
@@ -19,6 +19,9 @@ type (
 	}
 
 	GoFile interface {
+		Seek(offset int64, whence int) (int64, error)
+		Open(name string) (GoFile, error)
+
 		fs.File
 
 		io.Writer
@@ -75,11 +78,6 @@ type (
 		// If WriteAt is writing to a destination with a seek offset, WriteAt should not affect nor be affected by the underlying seek offset.
 		io.WriterAt
 
-		Seek(offset int64, whence int) (int64, error)
-		String() string
-
-		Open(name string) (http.File, error)
-
 		// FileInfo methods
 		// Name() string       // base name of the file
 		// Size() int64        // length in bytes for regular files; system-dependent for others
@@ -87,14 +85,15 @@ type (
 		// ModTime() time.Time // modification time
 		// IsDir() bool        // abbreviation for Mode().IsDir()
 		// Sys() interface{}   // underlying data source (can return nil)
-		FileInfo
+		fs.FileInfo
 
 		// FileMode methods
-		// IsDir() bool // abbreviation for Mode().IsDir()
-		// IsRegular() bool
-		// Perm() FileMode
+		// String() string 	// human-readable representation of the file
+		// IsDir() bool 	// abbreviation for Mode().IsDir()
+		// IsRegular() bool // IsRegular reports whether m is a regular file.
+		// Perm() FileMode	// Perm returns the Unix permission bits
 		// Type() FileMode
-		FileMode
+		FileModer
 
 		// FileOps methods
 		// Abs() (string, error)
@@ -121,7 +120,7 @@ type (
 		File
 
 		// Readdir(count int) ([]os.FileInfo, error)
-		ReadDir(n int) ([]DirEntry, error)
+		ReadDir(n int) ([]fs.DirEntry, error)
 
 		FileOps
 		Chdir() error
@@ -190,7 +189,7 @@ type (
 	//	}
 	//
 	// Reference: standard library fs.go
-	FileInfo = fs.FileInfo
+	// FileInfo = fs.FileInfo
 
 	// A FileMode represents a file's mode and permission bits.
 	// The bits have the same definition on all systems, so that
@@ -217,7 +216,7 @@ type (
 
 		// IsDir reports whether m describes a directory.
 		// That is, it tests for the ModeDir bit being set in m.
-		IsDir() bool
+		// IsDir() bool // duplicated in FileInfo interface
 
 		// IsRegular reports whether m describes a regular file.
 		// That is, it tests that no mode type bits are set.
@@ -256,7 +255,7 @@ type (
 	//  }
 	//
 	// Reference: standard library fs.go
-	DirEntry = fs.DirEntry
+	// DirEntry = fs.DirEntry
 
 	// A ReadDirFile is a directory file whose entries can be read with the ReadDir method.
 	// Every directory file should implement this interface.
@@ -282,7 +281,7 @@ type (
 	//   }
 	//
 	// Reference: standard library fs.go
-	ReadDirFile = fs.ReadDirFile
+	// ReadDirFile = fs.ReadDirFile
 
 	// An FS provides access to a hierarchical file system.
 	//
@@ -304,7 +303,7 @@ type (
 	//  }
 	//
 	// Reference: standard library fs.go
-	FS = fs.FS
+	// FS = fs.FS
 )
 
 // SameFile reports whether fi1 and fi2 describe the same file.

@@ -1,6 +1,7 @@
 package gofile
 
 import (
+	"io/fs"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -36,7 +37,7 @@ func (l *dirList) Len() int {
 	return l.count
 }
 
-func (l *dirList) Dirs() (list []FileInfo) {
+func (l *dirList) Dirs() (list []fs.FileInfo) {
 	for _, f := range l.list {
 		if f.IsDir() {
 			list = append(list, f)
@@ -61,7 +62,7 @@ func (l *dirList) Path() string {
 	return l.pathname
 }
 
-func fi2bf(fi FileInfo) (BasicFile, error) {
+func fi2bf(fi fs.FileInfo) (BasicFile, error) {
 	f, err := os.Open(fi.Name())
 
 	if err != nil {
