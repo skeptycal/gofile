@@ -1,5 +1,31 @@
 package gofile
 
+// SortType is a list of constants representing sort
+// methods for directory listings.
+type SortType int
+
+const (
+	Alpha SortType = iota + 1
+	Size
+	Version
+	Extension
+	Atime
+	Ctime
+)
+
+var sortNames = map[SortType]string{
+	1: "Alpha",
+	2: "Size",
+	3: "Version",
+	4: "Extension",
+	5: "Atime",
+	6: "Ctime",
+}
+
+func (s SortType) String() string {
+	return sortNames[s]
+}
+
 // dirOpts contains the options for directory listings.
 type dirOpts struct {
 	dirsfirst     bool   `default:"true"`

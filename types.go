@@ -4,7 +4,7 @@
 package gofile
 
 import (
-	"fmt"
+	"io"
 	"io/fs"
 	"net/http"
 	"os"
@@ -14,211 +14,148 @@ import (
 
 // Reference types copied from io package
 type (
-	Reader interface {
-		Read(p []byte) (n int, err error)
-	}
-
-	Writer interface {
-		Write(p []byte) (n int, err error)
-	}
-
 	Closer interface {
 		Close() error
 	}
 
-	WriteCloser interface {
-		Writer
-		Closer
-	}
+	GoFile interface {
+		fs.File
 
-	ReadCloser interface {
-		Reader
-		Closer
-	}
+		io.Writer
+		io.StringWriter
 
-	ReadWriteCloser interface {
-		ReadCloser
-		Writer
-	}
-
-	// StringWriter is the interface that wraps the WriteString method.
-	StringWriter interface {
-		WriteString(s string) (n int, err error)
-	}
-
-	// Seeker is the interface that wraps the basic Seek method.
-	//
-	// Seek sets the offset for the next Read or Write to offset, interpreted according to whence: SeekStart means relative to the start of the file, SeekCurrent means relative to the current offset, and SeekEnd means relative to the end. Seek returns the new offset relative to the start of the file or an error, if any.
-	//
-	// Seeking to an offset before the start of the file is an error. Seeking to any positive offset may be allowed, but if the new offset exceeds the size of the underlying object the behavior of subsequent I/O operations is implementation-dependent.
-	//
-	// Reference: io.Seeker
-	Seeker interface {
-		Seek(offset int64, whence int) (int64, error)
-	}
-
-	ToFrom interface {
-
-		// ReaderFrom is the interface that wraps the ReadFrom method.
+		// ReaderFrom is the interface that wraps
+		// the ReadFrom method.
 		//
-		// ReadFrom reads data from r until EOF or error. The return value n is the number of bytes read. Any error except EOF encountered during the read is also returned.
+		// ReadFrom reads data from r until EOF or error.
+		// The return value n is the number of bytes read.
+		// Any error except EOF encountered during the
+		// read is also returned.
 		//
 		// The Copy function uses ReaderFrom if available.
-		//
-		// Reference: io.ReaderFrom
-		ReadFrom(r Reader) (n int64, err error)
+		io.ReaderFrom
 
-		// WriterTo is the interface that wraps the WriteTo method.
+		// WriterTo is the interface that wraps the
+		// WriteTo method:
+		//     WriteTo(w Writer) (n int64, err error)
 		//
-		// WriteTo writes data to w until there's no more data to write or when an error occurs. The return value n is the number of bytes written. Any error encountered during the write is also returned.
+		// WriteTo writes data to w until there's no
+		// more data to write or when an error occurs.
+		// The return value n is the number of bytes
+		// written. Any error encountered during the
+		// write is also returned.
 		//
 		// The Copy function uses WriterTo if available.
 		//
-		// Reference: io.WriterTo
-		WriteTo(w Writer) (n int64, err error)
-	}
+		io.WriterTo
 
-	// ReadWriteAt implements io.ReaderAt and io.WriterAt
-	// for concurrent, non-overlapping reads and writes.
-	ReadWriterAt interface {
 		// ReaderAt is the interface that wraps the basic ReadAt method.
+		// 	ReadAt(p []byte, off int64) (n int, err error)
 		//
-		// ReadAt reads len(p) bytes into p starting at offset off in the
-		// underlying input source. It returns the number of bytes
-		// read (0 <= n <= len(p)) and any error encountered.
+		// ReadAt reads len(p) bytes into p starting at offset off in the underlying input source. It returns the number of bytes read (0 <= n <= len(p)) and any error encountered.
 		//
-		// When ReadAt returns n < len(p), it returns a non-nil error
-		// explaining why more bytes were not returned. In this respect,
-		// ReadAt is stricter than Read.
+		// When ReadAt returns n < len(p), it returns a non-nil error explaining why more bytes were not returned. In this respect, ReadAt is stricter than Read.
 		//
-		// Even if ReadAt returns n < len(p), it may use all of p as scratch
-		// space during the call. If some data is available but not len(p) bytes,
-		// ReadAt blocks until either all the data is available or an error occurs.
-		// In this respect ReadAt is different from Read.
+		// Even if ReadAt returns n < len(p), it may use all of p as scratch space during the call. If some data is available but not len(p) bytes, ReadAt blocks until either all the data is available or an error occurs. In this respect ReadAt is different from Read.
 		//
-		// If the n = len(p) bytes returned by ReadAt are at the end of the
-		// input source, ReadAt may return either err == EOF or err == nil.
+		// If the n = len(p) bytes returned by ReadAt are at the end of the input source, ReadAt may return either err == EOF or err == nil.
 		//
-		// If ReadAt is reading from an input source with a seek offset,
-		// ReadAt should not affect nor be affected by the underlying
-		// seek offset.
+		// If ReadAt is reading from an input source with a seek offset, ReadAt should not affect nor be affected by the underlying seek offset.
 		//
-		// Clients of ReadAt can execute parallel ReadAt calls on the
-		// same input source.
+		// Clients of ReadAt can execute parallel ReadAt calls on the same input source.
 		//
 		// Implementations must not retain p.
-		ReadAt(p []byte, off int64) (n int, err error)
+		io.ReaderAt
 
 		// WriterAt is the interface that wraps the basic WriteAt method.
+		// 	WriteAt(p []byte, off int64) (n int, err error)
 		//
-		// WriteAt writes len(p) bytes from p to the underlying data stream
-		// at offset off. It returns the number of bytes written from p (0 <= n <= len(p))
-		// and any error encountered that caused the write to stop early.
-		// WriteAt must return a non-nil error if it returns n < len(p).
+		// WriteAt writes len(p) bytes from p to the underlying data stream at offset off. It returns the number of bytes written from p (0 <= n <= len(p)) and any error encountered that caused the write to stop early. WriteAt must return a non-nil error if it returns n < len(p).
 		//
-		// If WriteAt is writing to a destination with a seek offset,
-		// WriteAt should not affect nor be affected by the underlying
-		// seek offset.
-		//
-		// Clients of WriteAt can execute parallel WriteAt calls on the same
-		// destination if the ranges do not overlap.
-		//
-		// Implementations must not retain p.
-		WriteAt(p []byte, off int64) (n int, err error)
+		// If WriteAt is writing to a destination with a seek offset, WriteAt should not affect nor be affected by the underlying seek offset.
+		io.WriterAt
+
+		Seek(offset int64, whence int) (int64, error)
+		String() string
+
+		Open(name string) (http.File, error)
+
+		// FileInfo methods
+		// Name() string       // base name of the file
+		// Size() int64        // length in bytes for regular files; system-dependent for others
+		// Mode() FileMode     // file mode bits
+		// ModTime() time.Time // modification time
+		// IsDir() bool        // abbreviation for Mode().IsDir()
+		// Sys() interface{}   // underlying data source (can return nil)
+		FileInfo
+
+		// FileMode methods
+		// IsDir() bool // abbreviation for Mode().IsDir()
+		// IsRegular() bool
+		// Perm() FileMode
+		// Type() FileMode
+		FileMode
+
+		// FileOps methods
+		// Abs() (string, error)
+		// Base(path string) string
+		// Chmod(mode os.FileMode) error
+		// Dir(path string) string
+		// Ext(path string) string
+		// Move(path string) error
+		// Split(path string) (dir, file string)
+		FileOps
+
+		// Unix File Operations
+		// 	Fd() uintptr
+		// 	Link(newname string) error
+		// 	Readlink() (string, error)
+		// 	Remove() error
+		// 	Symlink(newname string) error
+		// 	Truncate(size int64) error
+		FileUnix
+	}
+
+	GoDir interface {
+		// GoFile
+		File
+
+		// Readdir(count int) ([]os.FileInfo, error)
+		ReadDir(n int) ([]DirEntry, error)
+
+		FileOps
+		Chdir() error
+
+		Readdirnames(dir string) (n int, err error)
 	}
 
 	FileOps interface {
-		Chmod(mode os.FileMode) error
-		Move(path string) error
 		Abs() (string, error)
-		Split(path string) (dir, file string)
 		Base(path string) string
+		Chmod(mode os.FileMode) error
+		Chown(uid int, gid int) error
 		Dir(path string) string
 		Ext(path string) string
-	}
-
-	GoFile interface {
-		File
-		Writer
-		StringWriter
-		ToFrom
-		ReadWriterAt
-		Seeker
-		fmt.Stringer
-
-		Open(name string) (http.File, error)
-		// Readdir(count int) ([]os.FileInfo, error)
-
-		// FileInfo methods
-		Name() string       // base name of the file
-		Size() int64        // length in bytes for regular files; system-dependent for others
-		Mode() FileMode     // file mode bits
-		ModTime() time.Time // modification time
-		// IsDir() bool        // abbreviation for Mode().IsDir()
-		Sys() any
-
-		// FileMode methods
-		String() string // human-readable representation of the file
-		IsDir() bool    // abbreviation for Mode().IsDir()
-		IsRegular() bool
-		Perm() FileMode
-		Type() FileMode
-
-		// Unix File Operations
-		Truncate(size int64) error
-		Remove() error
-		Link(newname string) error
-		Symlink(newname string) error
-		Readlink() (string, error)
-		Fd() uintptr
-
-		Chmod(mode FileMode) error
-		Chown(uid int, gid int) error
+		Move(path string) error
+		Split(path string) (dir, file string)
+		Sync() error
 
 		SetDeadline(t time.Time) error
 		SetReadDeadline(t time.Time) error
 		SetWriteDeadline(t time.Time) error
 
-		Sync() error
-
 		SyscallConn() (syscall.RawConn, error)
 	}
 
-	GoDir interface {
-		ReadDirFile
-		GoFile
-		Chdir() error
-
-		Readdirnames(dir string) (n int, err error)
+	FileUnix interface {
+		Fd() uintptr
+		Link(newname string) error
+		Readlink() (string, error)
+		Remove() error
+		Symlink(newname string) error
+		Truncate(size int64) error
 	}
 )
-
-// type (
-// 	GoFile interface {
-// 		Name() string
-// 		Read(b []byte) (n int, err error)
-// 		ReadAt(b []byte, off int64) (n int, err error)
-// 		ReadFrom(r io.Reader) (n int64, err error)
-// 		Write(b []byte) (n int, err error)
-// 		WriteAt(b []byte, off int64) (n int, err error)
-// 		Seek(offset int64, whence int) (ret int64, err error)
-// 		WriteString(s string) (n int, err error)
-// 		Chmod(mode FileMode) error
-// 		SetDeadline(t time.Time) error
-// 		SetReadDeadline(t time.Time) error
-// 		SetWriteDeadline(t time.Time) error
-// 		SyscallConn() (syscall.RawConn, error)
-// 	}
-// )
-
-type fileUnix interface {
-	Truncate(size int64) error
-	Remove() error
-	Link(newname string) error
-	Symlink(newname string) error
-	Readlink() (string, error)
-	Fd() uintptr
-}
 
 //******************* Reference: standard library fs.go
 

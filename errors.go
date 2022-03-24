@@ -1,7 +1,6 @@
 package gofile
 
 import (
-	"errors"
 	"io"
 	"io/fs"
 	"os"
@@ -20,25 +19,52 @@ var NewSyscallError = os.NewSyscallError
 // Errors returned from this package may be tested against these errors
 // with errors.Is.
 var (
-	ErrNoAlloc          = errors.New("failed to allocate memory for file")
-	ErrNotImplemented   = errors.New("not implemented")
-	errFileLocked       = NewGoFileError("file locked", "", ErrClosed)
-	ErrFsInvalid        = fs.ErrInvalid
-	ErrPermission       = fs.ErrPermission
-	ErrExist            = fs.ErrExist
-	ErrNotExist         = fs.ErrNotExist
-	ErrClosed           = fs.ErrClosed
-	ErrInvalid          = os.ErrInvalid
-	ErrNoDeadline       = os.ErrNoDeadline
-	ErrDeadlineExceeded = os.ErrDeadlineExceeded
-	ErrProcessDone      = os.ErrProcessDone
-	ErrClosedPipe       = io.ErrClosedPipe
-	ErrNoProgress       = io.ErrNoProgress
-	ErrShortBuffer      = io.ErrShortBuffer
-	ErrShortWrite       = io.ErrShortWrite
-	ErrUnexpectedEOF    = io.ErrUnexpectedEOF
-	ErrBadPattern       = filepath.ErrBadPattern
+	ErrNoAlloc        = NewGoFileError("memory allocation failure", "", ErrInvalid)
+	ErrNotImplemented = NewGoFileError("feature not implemented", "", ErrInvalid)
+	ErrFileLocked     = NewGoFileError("file locked", "", ErrClosed)
+
+	// ErrExist            = fs.ErrExist
+	// ErrNotExist         = fs.ErrNotExist
+	// ErrPermission       = fs.ErrPermission
+	// ErrClosed           = fs.ErrClosed
+	// ErrInvalid          = fs.ErrInvalid
+	// ErrNoDeadline       = os.ErrNoDeadline
+	// ErrDeadlineExceeded = os.ErrDeadlineExceeded
+	// ErrProcessDone      = os.ErrProcessDone
+	// ErrClosedPipe       = io.ErrClosedPipe
+	// ErrNoProgress       = io.ErrNoProgress
+	// ErrShortBuffer      = io.ErrShortBuffer
+	// ErrShortWrite       = io.ErrShortWrite
+	// ErrUnexpectedEOF    = io.ErrUnexpectedEOF
+	// ErrBadPattern       = filepath.ErrBadPattern
 )
+
+var (
+	ErrExist            = NewGoFileError("", "", fs.ErrExist)
+	ErrNotExist         = NewGoFileError("", "", fs.ErrNotExist)
+	ErrPermission       = NewGoFileError("", "", fs.ErrPermission)
+	ErrClosed           = NewGoFileError("", "", fs.ErrClosed)
+	ErrInvalid          = NewGoFileError("", "", fs.ErrInvalid)
+	ErrNoDeadline       = NewGoFileError("", "", os.ErrNoDeadline)
+	ErrDeadlineExceeded = NewGoFileError("", "", os.ErrDeadlineExceeded)
+	ErrProcessDone      = NewGoFileError("", "", os.ErrProcessDone)
+	ErrClosedPipe       = NewGoFileError("", "", io.ErrClosedPipe)
+	ErrNoProgress       = NewGoFileError("", "", io.ErrNoProgress)
+	ErrShortBuffer      = NewGoFileError("", "", io.ErrShortBuffer)
+	ErrShortWrite       = NewGoFileError("", "", io.ErrShortWrite)
+	ErrUnexpectedEOF    = NewGoFileError("", "", io.ErrUnexpectedEOF)
+	ErrBadPattern       = NewGoFileError("", "", filepath.ErrBadPattern)
+)
+
+func SetError(op, path string, err GoFileError) GoFileError {
+	if op != "" {
+		err.Op = op
+	}
+	if path != "" {
+		err.Path = path
+	}
+	return err
+}
 
 type (
 	timeout interface {
