@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/pkg/errors"
+	"github.com/skeptycal/basicfile"
 )
 
 const (
@@ -36,7 +37,7 @@ func NotExists(filename string) bool {
 func Stat(filename string) os.FileInfo {
 	fi, err := os.Stat(filename)
 	if err != nil {
-		Err(NewGoFileError("gofile.Stat()", filename, err))
+		Err(basicfile.NewGoFileError("gofile.Stat()", filename, err))
 		return nil
 	}
 	return fi

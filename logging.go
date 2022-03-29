@@ -1,6 +1,6 @@
 package gofile
 
-import "github.com/skeptycal/goutil/errorlogger"
+import "github.com/skeptycal/errorlogger"
 
 // errorlogger implements error logging to a logrus log
 // by default. It is completely compatible with the standard library

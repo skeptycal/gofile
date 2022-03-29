@@ -7,9 +7,33 @@ import (
 	"path/filepath"
 )
 
+type (
+	timeout interface {
+		Timeout() bool
+	}
+
+	// Errer implements the common error methods
+	// associated with file and system errors.
+	Errer interface {
+		Error() string
+		Unwrap() error
+		Timeout() bool
+		// Wrap() error
+	}
+
+	// PathError records an error and the operation
+	// and file path that caused it.
+	// PathError = os.PathError
+
+	// SyscallError records an error from a specific
+	// system call.
+	SyscallError = os.SyscallError
+)
+
 // NewSyscallError returns, as an error, a new
 // SyscallError with the given system call name
 // and error details.
+//
 // As a convenience, if err is nil, NewSyscallError
 // returns nil.
 var NewSyscallError = os.NewSyscallError
@@ -19,27 +43,9 @@ var NewSyscallError = os.NewSyscallError
 // Errors returned from this package may be tested against these errors
 // with errors.Is.
 var (
-	ErrNoAlloc        = NewGoFileError("memory allocation failure", "", ErrInvalid)
-	ErrNotImplemented = NewGoFileError("feature not implemented", "", ErrInvalid)
-	ErrFileLocked     = NewGoFileError("file locked", "", ErrClosed)
-
-	// ErrExist            = fs.ErrExist
-	// ErrNotExist         = fs.ErrNotExist
-	// ErrPermission       = fs.ErrPermission
-	// ErrClosed           = fs.ErrClosed
-	// ErrInvalid          = fs.ErrInvalid
-	// ErrNoDeadline       = os.ErrNoDeadline
-	// ErrDeadlineExceeded = os.ErrDeadlineExceeded
-	// ErrProcessDone      = os.ErrProcessDone
-	// ErrClosedPipe       = io.ErrClosedPipe
-	// ErrNoProgress       = io.ErrNoProgress
-	// ErrShortBuffer      = io.ErrShortBuffer
-	// ErrShortWrite       = io.ErrShortWrite
-	// ErrUnexpectedEOF    = io.ErrUnexpectedEOF
-	// ErrBadPattern       = filepath.ErrBadPattern
-)
-
-var (
+	ErrNoAlloc          = NewGoFileError("memory allocation failure", "", ErrInvalid)
+	ErrNotImplemented   = NewGoFileError("feature not implemented", "", ErrInvalid)
+	ErrFileLocked       = NewGoFileError("file locked", "", ErrClosed)
 	ErrExist            = NewGoFileError("", "", fs.ErrExist)
 	ErrNotExist         = NewGoFileError("", "", fs.ErrNotExist)
 	ErrPermission       = NewGoFileError("", "", fs.ErrPermission)
@@ -66,29 +72,6 @@ func SetError(op, path string, err GoFileError) GoFileError {
 	return err
 }
 
-type (
-	timeout interface {
-		Timeout() bool
-	}
-
-	// Errer implements the common error methods
-	// associated with file and system errors.
-	Errer interface {
-		Error() string
-		// Wrap() error
-		Unwrap() error
-		Timeout() bool
-	}
-
-	// PathError records an error and the operation
-	// and file path that caused it.
-	PathError = os.PathError
-
-	// SyscallError records an error from a specific
-	// system call.
-	SyscallError = os.SyscallError
-)
-
 // NewPathError returns, as an error, a new
 // PathError with the given operation and file
 // path that caused it.
@@ -99,9 +82,24 @@ func NewPathError(op, path string, err error) Errer {
 	if err == nil {
 		return nil
 	}
-	return &PathError{
+	return &os.PathError{
 		Op:   op,
 		Path: path,
 		Err:  err,
 	}
 }
+
+// ErrExist            = fs.ErrExist
+// ErrNotExist         = fs.ErrNotExist
+// ErrPermission       = fs.ErrPermission
+// ErrClosed           = fs.ErrClosed
+// ErrInvalid          = fs.ErrInvalid
+// ErrNoDeadline       = os.ErrNoDeadline
+// ErrDeadlineExceeded = os.ErrDeadlineExceeded
+// ErrProcessDone      = os.ErrProcessDone
+// ErrClosedPipe       = io.ErrClosedPipe
+// ErrNoProgress       = io.ErrNoProgress
+// ErrShortBuffer      = io.ErrShortBuffer
+// ErrShortWrite       = io.ErrShortWrite
+// ErrUnexpectedEOF    = io.ErrUnexpectedEOF
+// ErrBadPattern       = filepath.ErrBadPattern

@@ -5,6 +5,16 @@ import (
 	"os"
 )
 
+// func NewFileWithErr(name string) BasicFile {
+// 	if NotExists(name) {
+// 		return nil
+// 	}
+// 	f :=
+
+// }
+
+// .IsDir()
+
 // PWD returns a rooted path name corresponding to the
 // current directory. If the current directory can be
 // reached via multiple paths (due to symbolic links),

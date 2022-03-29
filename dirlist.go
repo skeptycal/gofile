@@ -9,11 +9,13 @@ import (
 )
 
 type (
+	BasicFile = basicfile.BasicFile
+
 	DIR interface {
 		Len() int
 		Path() string
 		List() ([]BasicFile, error)
-		SetOpts(opts dirOpts)
+		SetOpts(opts dirOptions)
 
 		// Chdir changes the current working directory to the file, which must be a directory. If there is an error, it will be of type *PathError.
 		Chdir() error
@@ -26,7 +28,7 @@ type dirList struct {
 	providedName string
 	pathname     string
 	count        int
-	opts         dirOpts
+	opts         dirOptions
 	list         []BasicFile // []DataFile // fs.FileInfo
 }
 
@@ -98,7 +100,7 @@ func (l *dirList) List() (fi []BasicFile, err error) {
 	return l.list, nil
 }
 
-func (l *dirList) SetOpts(opts dirOpts) {
+func (l *dirList) SetOpts(opts dirOptions) {
 	l.opts = opts
 }
 

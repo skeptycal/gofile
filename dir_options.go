@@ -27,7 +27,7 @@ func (s SortType) String() string {
 }
 
 // dirOpts contains the options for directory listings.
-type dirOpts struct {
+type dirOptions struct {
 	dirsfirst     bool   `default:"true"`
 	all           bool   `default:"true"`
 	almostAll     bool   `default:"true"`
@@ -56,4 +56,4 @@ type dirOpts struct {
 	timeStyle     string `default:"time.Stamp"`
 }
 
-var defaultOptions = dirOpts{}
+var defaultOptions = dirOptions{}
