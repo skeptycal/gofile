@@ -18,7 +18,7 @@ const (
 
 func Exists(filename string) bool {
 	_, err := os.Stat(filename)
-	return errors.Is(err, ErrNotExist)
+	return errors.Is(err, os.ErrNotExist)
 }
 
 func NotExists(filename string) bool {
