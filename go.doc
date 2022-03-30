@@ -4,11 +4,10 @@ Package gofile provides support for file operations.
 
 const NormalMode os.FileMode = 0644 ...
 const PathSep = os.PathSeparator ...
-var ErrNoAlloc = NewGoFileError("memory allocation failure", "", ErrInvalid) ...
-var ErrExist = NewGoFileError("", "", fs.ErrExist) ...
+var ErrNoAlloc = basicfile.ErrNoAlloc ...
 var Err = log.Err
-var NewSyscallError = os.NewSyscallError
-var SameFile = os.SameFile
+var NewFileWithErr = basicfile.NewFileWithErr
+var NewGoFileError = basicfile.NewGoFileError
 func Copy(src, dest string) (int64, error)
 func CopyBuffer(src, dst string, buffersize int) (written int64, err error)
 func CopyUtil(src, dst string) (written int64, err error)
@@ -21,23 +20,10 @@ func NotExists(filename string) bool
 func PWD() string
 func Stat(filename string) os.FileInfo
 func StatCheck(filename string) (os.FileInfo, error)
-type Closer interface{ ... }
+type BasicFile = basicfile.BasicFile
 type DIR interface{ ... }
-type Errer interface{ ... }
-    func NewPathError(op, path string, err error) Errer
-type File = fs.File
-type FileMode = fs.FileMode
-type FileModer interface{ ... }
-type FileOps interface{ ... }
-type FileUnix interface{ ... }
-type GoDir interface{ ... }
-type GoFile interface{ ... }
-type GoFileError struct{ ... }
-    func NewGoFileError(op, path string, err error) *GoFileError
-    func SetError(op, path string, err GoFileError) GoFileError
-type PathError = os.PathError
+type GoFileError = basicfile.GoFileError
 type SortType int
     const Alpha SortType = iota + 1 ...
-type SyscallError = os.SyscallError
 type TimeZone int
     const EST TimeZone = -(5 + iota) ...
