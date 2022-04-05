@@ -1,6 +1,11 @@
 package gofile
 
 import (
+	"io"
+	"io/fs"
+	"os"
+	"path/filepath"
+
 	"github.com/skeptycal/basicfile"
 )
 
@@ -44,23 +49,23 @@ var NewGoFileError = basicfile.NewGoFileError
 // Errors returned from this package may be tested against these errors
 // with errors.Is.
 var (
-	ErrNoAlloc          = basicfile.ErrNoAlloc          // NewGoFileError("memory allocation failure", "", ErrInvalid)
-	ErrNotImplemented   = basicfile.ErrNotImplemented   // NewGoFileError("feature not implemented", "", ErrInvalid)
-	ErrFileLocked       = basicfile.ErrFileLocked       // NewGoFileError("file locked", "", ErrClosed)
-	ErrExist            = basicfile.ErrExist            // NewGoFileError("", "", fs.ErrExist)
-	ErrNotExist         = basicfile.ErrNotExist         // NewGoFileError("", "", fs.ErrNotExist)
-	ErrPermission       = basicfile.ErrPermission       // NewGoFileError("", "", fs.ErrPermission)
-	ErrClosed           = basicfile.ErrClosed           // NewGoFileError("", "", fs.ErrClosed)
-	ErrInvalid          = basicfile.ErrInvalid          // NewGoFileError("", "", fs.ErrInvalid)
-	ErrNoDeadline       = basicfile.ErrNoDeadline       // NewGoFileError("", "", os.ErrNoDeadline)
-	ErrDeadlineExceeded = basicfile.ErrDeadlineExceeded // NewGoFileError("", "", os.ErrDeadlineExceeded)
-	ErrProcessDone      = basicfile.ErrProcessDone      // NewGoFileError("", "", os.ErrProcessDone)
-	ErrClosedPipe       = basicfile.ErrClosedPipe       // NewGoFileError("", "", io.ErrClosedPipe)
-	ErrNoProgress       = basicfile.ErrNoProgress       // NewGoFileError("", "", io.ErrNoProgress)
-	ErrShortBuffer      = basicfile.ErrShortBuffer      // NewGoFileError("", "", io.ErrShortBuffer)
-	ErrShortWrite       = basicfile.ErrShortWrite       // NewGoFileError("", "", io.ErrShortWrite)
-	ErrUnexpectedEOF    = basicfile.ErrUnexpectedEOF    // NewGoFileError("", "", io.ErrUnexpectedEOF)
-	ErrBadPattern       = basicfile.ErrBadPattern       // NewGoFileError("", "", filepath.ErrBadPattern)
+	// ErrNoAlloc          = basicfile.ErrNoAlloc        // NewGoFileError("memory allocation failure", "", ErrInvalid)
+	// ErrFileLocked       = basicfile.ErrFileLocked     // NewGoFileError("file locked", "", ErrClosed)
+	ErrNotImplemented   = basicfile.ErrNotImplemented // NewGoFileError("feature not implemented", "", ErrInvalid)
+	ErrExist            = fs.ErrExist                 // NewGoFileError("", "", fs.ErrExist)
+	ErrNotExist         = fs.ErrNotExist              // NewGoFileError("", "", fs.ErrNotExist)
+	ErrPermission       = fs.ErrPermission            // NewGoFileError("", "", fs.ErrPermission)
+	ErrClosed           = fs.ErrClosed                // NewGoFileError("", "", fs.ErrClosed)
+	ErrInvalid          = fs.ErrInvalid               // NewGoFileError("", "", fs.ErrInvalid)
+	ErrNoDeadline       = os.ErrNoDeadline            // NewGoFileError("", "", os.ErrNoDeadline)
+	ErrDeadlineExceeded = os.ErrDeadlineExceeded      // NewGoFileError("", "", os.ErrDeadlineExceeded)
+	ErrProcessDone      = os.ErrProcessDone           // NewGoFileError("", "", os.ErrProcessDone)
+	ErrClosedPipe       = io.ErrClosedPipe            // NewGoFileError("", "", io.ErrClosedPipe)
+	ErrNoProgress       = io.ErrNoProgress            // NewGoFileError("", "", io.ErrNoProgress)
+	ErrShortBuffer      = io.ErrShortBuffer           // NewGoFileError("", "", io.ErrShortBuffer)
+	ErrShortWrite       = io.ErrShortWrite            // NewGoFileError("", "", io.ErrShortWrite)
+	ErrUnexpectedEOF    = io.ErrUnexpectedEOF         // NewGoFileError("", "", io.ErrUnexpectedEOF)
+	ErrBadPattern       = filepath.ErrBadPattern      // NewGoFileError("", "", filepath.ErrBadPattern)
 )
 
 // func SetError(op, path string, err GoFileError) GoFileError {
@@ -90,17 +95,19 @@ var (
 // 	}
 // }
 
-// // ErrExist            = fs.ErrExist
-// // ErrNotExist         = fs.ErrNotExist
-// // ErrPermission       = fs.ErrPermission
-// // ErrClosed           = fs.ErrClosed
-// // ErrInvalid          = fs.ErrInvalid
-// // ErrNoDeadline       = os.ErrNoDeadline
-// // ErrDeadlineExceeded = os.ErrDeadlineExceeded
-// // ErrProcessDone      = os.ErrProcessDone
-// // ErrClosedPipe       = io.ErrClosedPipe
-// // ErrNoProgress       = io.ErrNoProgress
-// // ErrShortBuffer      = io.ErrShortBuffer
-// // ErrShortWrite       = io.ErrShortWrite
-// // ErrUnexpectedEOF    = io.ErrUnexpectedEOF
-// // ErrBadPattern       = filepath.ErrBadPattern
+// var (
+// 	ErrExist            = fs.ErrExist
+// 	ErrNotExist         = fs.ErrNotExist
+// 	ErrPermission       = fs.ErrPermission
+// 	ErrClosed           = fs.ErrClosed
+// 	ErrInvalid          = fs.ErrInvalid
+// 	ErrNoDeadline       = os.ErrNoDeadline
+// 	ErrDeadlineExceeded = os.ErrDeadlineExceeded
+// 	ErrProcessDone      = os.ErrProcessDone
+// 	ErrClosedPipe       = io.ErrClosedPipe
+// 	ErrNoProgress       = io.ErrNoProgress
+// 	ErrShortBuffer      = io.ErrShortBuffer
+// 	ErrShortWrite       = io.ErrShortWrite
+// 	ErrUnexpectedEOF    = io.ErrUnexpectedEOF
+// 	ErrBadPattern       = filepath.ErrBadPattern
+// )
