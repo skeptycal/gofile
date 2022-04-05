@@ -1,12 +1,13 @@
-package dirtest
+package main
 
 import (
 	"fmt"
 	"os"
 	"time"
 
+	"github.com/fatih/color"
 	log "github.com/sirupsen/logrus"
-	"github.com/skeptycal/gofile"
+	"github.com/skeptycal/basicfile"
 )
 
 // func Dir(path string) string {
@@ -23,10 +24,9 @@ import (
 
 func main() {
 
-	// green := ansi.NewColor(2, 0, 1)
-	// blue := ansi.NewColor(33, 0, 1)
-
-	// var color = ansi.NewColor(ansi.White, ansi.Black, ansi.Bold)
+	green := color.New(color.FgHiGreen)
+	blue := color.New(color.FgHiBlue)
+	color := color.New(color.Bold, color.FgHiWhite, color.BgBlack)
 
 	log.Info("log started...")
 
@@ -35,28 +35,38 @@ func main() {
 	if len(os.Args) > 2 {
 		testpath = os.Args[1]
 	} else {
-		testpath = gofile.PWD()
+		var err error
+		testpath, err = os.Getwd()
+		if err != nil {
+			testpath = "."
+		}
 	}
+
+	log.Info("testpath: ", testpath)
 
 	// d, err := gofile.NewDIR(testpath)
-	d, err := gofile.NewFileWithErr(testpath)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	list, err := d.List()
+	d, err := basicfile.NewBasicFile(testpath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	fmt.Print(color)
 
-	fmt.Printf("directory of %s\n", d.Path())
-	for _, f := range list {
-		fi, err := f.Stat()
+	root := d.FileOps().Abs()
+
+	log.Info("d.Name(): ", root)
+
+	rdList, err := os.ReadDir(root)
+	if err != nil {
+		log.Fatalf("os.ReadDir error: %v", err)
+	}
+
+	fmt.Printf("directory of %s\n", d.Name())
+	for _, f := range rdList {
+		fi, err := f.Info()
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
+			continue
 		}
 		if fi.IsDir() {
 			color = blue
@@ -66,7 +76,7 @@ func main() {
 		// fmt.Printf("%s%s\n", color, fi.Name())
 		// fmt.Printf("%s\n", f.Base())
 
-		fmt.Printf("%s%v %7d %v %s\n", color, fi.Mode(), fi.Size(), fi.ModTime().Format(time.Stamp), fi.Name())
+		color.Printf("%v %7d %v %s\n", fi.Mode(), fi.Size(), fi.ModTime().Format(time.Stamp), fi.Name())
 		// fmt.Printf("%s\n", f.Base())
 
 	}

@@ -1,4 +1,4 @@
-package dirtest
+package main
 
 // func BenchmarkDirShellBM(b *testing.B) {
 
