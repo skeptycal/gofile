@@ -12,5 +12,5 @@ require github.com/skeptycal/basicfile v0.0.0-20220405190439-d5f7ae669feb
 
 require (
 	github.com/stretchr/testify v1.7.1 // indirect
-	golang.org/x/sys v0.0.0-20220405052023-b1e9470b6e64 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 )
